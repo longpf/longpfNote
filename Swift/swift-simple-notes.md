@@ -36,7 +36,7 @@ print(aa)
 输出
 ==============
 
-```
+```swift
 var name = "666"
 var site = "777"
 print("\(name)dddd\(site)")
@@ -48,7 +48,7 @@ print("\(name)dddd\(site)")
 区间运算
 ==============
 
-```
+```swift
 for index in 1...5 {
     print(index)
 }
@@ -63,7 +63,7 @@ for index in 1..<5 {
 字符串
 ==============
 
-```
+```swift
 //使用字符串字面量
 var stringA = "Hello,World!"
 //String实例化
@@ -92,7 +92,7 @@ utf8
 字符
 ==============
 
-```
+```swift
 //创建 
 let char1: Character = "A" //不能创建空字符 ""
 
@@ -110,7 +110,7 @@ varA.append( varB )
 数组
 ==============
 
-```
+```swift
 var someInts = [Int](repeatElement(0, count: 3))
 someInts[1] = 1
 someInts.append(6)
@@ -132,7 +132,7 @@ for (index,item) in someInts.enumerated() {
 字典
 ==============
 
-```
+```swift
 var someDict = [Int: String]() //空字典
 ar someDic:[Int:String] = [1:"one",2:"two"]
 someDic[1] = "999"
@@ -163,7 +163,7 @@ for (key,value) in someDic.enumerated() {
 函数
 ==============
 
-```
+```swift
 func minMax(array:[Int]) -> (min: Int,max: Int) {
 var currentMin = array[0];
 var currentMax = array[0]
@@ -254,7 +254,7 @@ print(decrem())
 闭包
 ==============
 
-```
+```swift
 {(parameters) -> return type in
    statements
 }
@@ -285,7 +285,7 @@ var reversed = names.sorted(by: >)
 
 尾随闭包是一个书写在函数括号之后的闭包表达式,函数支持将其作为最后一个参数调用
 
-```
+```swift
 个参数调用
 func someFunctionThatTakesAClosure(closure: () -> Void) {
     // 函数体部分
@@ -310,7 +310,7 @@ someFunctionThatTakesAClosure {
 	print("2");
 }
 ```
-```
+```swift
 let names = ["AT","AE","D","S","BE"]
         
 //尾随闭包
@@ -325,7 +325,7 @@ reversed = names.sorted { $0 > $1 }
 
 闭包可以在其定义的上下文中捕获常量或变量.即使定义这些常量和变量的原域已经不存在,闭包仍然可以在闭包函数体内引用和修改这些值.swift最简单的闭包形式是嵌套函数,也就是定义在其他函数的函数体内的函数.嵌套函数可以捕获其外部函数所有的参数以及定义的常量和变量.看这个例子:
 
-```
+```swift
 func  makeIncrementor(forIncrement amount: Int) -> ()->Int {
     var runningTotal = 0;
     func incrementor() -> Int{
@@ -352,7 +352,7 @@ print(incrementByTen())
 枚举
 ==============
 
-```
+```swift
 enum DaysofaWeek {
     case Sunday
     case Monday
@@ -380,7 +380,7 @@ enum {10,0.8,"Hello"} |  enum {10,35,50}
 
 * 1 相关值
 
-```
+```swift
 enum Student {
     case Name(String)
     case Mark(Int,Int,Int)
@@ -401,7 +401,7 @@ case .Mark(let Mark1, let Mark2, let Mark3):
 在原始值为整数的枚举时，不需要显式的为每一个成员赋值，Swift会自动为你赋值。
 例如，当使用整数作为原始值时，隐式赋值的值依次递增1。如果第一个值没有被赋初值，将会被自动置为0。
 
-```
+```swift
 enum Month: Int {
         case January = 1, February, March, April, May, June, July, August, September, October, November, December
 }
@@ -422,7 +422,7 @@ print("数字月份为: \(yearMonth)。")
 * 结构体不需要包含实现文件和接口
 * 结构体允许我们创建一个单一文件,且系统工会自动生成面向其他代码的外部接口
 
-```
+```swift
 struct studentMarks {
    var mark1 = 100
    var mark2 = 78
@@ -448,7 +448,7 @@ print("Mark1 是 \(marks.mark1)")
 
 结构体实例是通过值传递而不是通过引用传递
 
-```
+```swift
 struct markStruct{
     var mark1: Int
     var mark2: Int
@@ -494,7 +494,7 @@ print(fail.mark3)
 
 类定义:
 
-```
+```swift
 class student{
     var studname: String = ""
     var mark: Int = 0
@@ -510,7 +510,7 @@ let studrecord = student()
 
 属性访问
 
-```
+```swift
 class studentMarks {
    var mark1 = 300
    var mark2 = 400
@@ -529,7 +529,7 @@ print("Mark3 is \(marks.mark3)")
 运算符为 ===	   | 运算符为 !==
 如果两个常量或者变量引用同一个类实例则返回true   |  如果两个常量或者变量引用不同一个类型实例则返回 true
 
-```
+```swift
 let spClass1 = SampleClass(s: "Hello");
 let spClass2 = SampleClass(s: "Hello")
     
@@ -558,7 +558,7 @@ swift属性将值跟特定的类,结构或枚举关联
 
 **存储属性**
 
-```
+```swift
 struct Number
 {
    var digits: Int
@@ -581,7 +581,7 @@ print("\(n.pi)")
 * 延迟对象的创建
 * 当属性的值依赖于其他未知类
 
-```
+```swift
 class sample{
     lazy var no = number();
 }
@@ -598,7 +598,7 @@ print(firstsample.no.name)
 
 计算属性不直接存储值,而是提供一个getter来获取值,一个可选的setter来间接设置其他属性或变量的值.
 
-```
+```swift
 class sample {
     var no1 = 0.0, no2 = 0.0
     var length = 300.0, breadth = 150.0
@@ -626,7 +626,7 @@ print(result.no2)
 
 只读计算属性总是返回一个值,可以通过点(.)运算符访问,但不能设置新的值
 
-```
+```swift
 class film {
     var head = ""
     var duration = 0.0
@@ -657,7 +657,7 @@ print(movie.metaInfo["duration"]!)
  * willSet和didSet观察器在属性初始化过程中不回被调用
 
 
-```
+```swift
 class Samplepgm {
     var counter: Int = 0{
         willSet(newTotal){
@@ -687,7 +687,7 @@ NewCounter.counter = 800
 类型属性是作为类型定义的一部分写在类型最外层的花括号{}内.
 使用关键字static来定义值类型的类型属性,关键字class来为类定义类型属性.
 
-```
+```swift
 struct Structname {
    static var storedTypeProperty = " "
    static var computedTypeProperty: Int {
@@ -711,7 +711,7 @@ class Classname {
 
 **获取和设置类型属性的值**
 
-```
+```swift
 struct StudMarks {
    static let markCount = 97
    static var totalCount = 0
@@ -753,7 +753,7 @@ swift语言中结构体和枚举是值类型.一般情况下,值类型的属性�
 方法还可以给它隐含的属性赋值一个全新的实例,这个新实例在方法结束后替换原来的实例.
 
 
-```
+```swift
 struct area {
     var length = 1
     var breadth = 1
@@ -785,7 +785,7 @@ val.scaleBy(res: 30)
 **类型方法**
 
 
-```
+```swift
 class Math
 {
     class func abs(number: Int) -> Int
@@ -844,7 +844,7 @@ swift下标脚本
 
 与实例方法不同的是下标脚本可以设定为读写或只读.这种方式又有点像计算型属性的setter和getter
 
-```
+```swift
 struct subexample {
     let decrementer: Int
     subscript(index: Int) -> Int {
@@ -868,7 +868,8 @@ print("100 除以 7 等于 \(division[7])")
 
 //通过下标脚本来得到结果，比如 division[2] 即为 100 除以 2。
 ```
-```
+
+```swift
 class daysofaweek {
     private var days = ["Sunday", "Monday", "Tuesday", "Wednesday",
         "Thursday", "Friday", "saturday"]
@@ -902,7 +903,7 @@ Wednesday
 * 下标脚本可以使用变量参数和可变参数
 * 一个类或结构体可以根据机身需要提供多个下标脚本实现,在定义下标脚本时通过入参数的类型进行区分,使用下标脚本时会自动匹配合适的下标脚本实现运行,这就是**下标脚本的重载**
 
-```
+```swift
 struct Matrix {
     let rows: Int, columns: Int
     var print: [Double]
@@ -943,7 +944,7 @@ print("\(mat[1,1])")
 
 关键字 override
 
-```
+```swift
 class SuperClass {
     func show() {
         print("这是超类 SuperClass")
@@ -974,7 +975,7 @@ subClass.show()
 * 如果你在重写舒心各种提供了setter,那么你也一定要提供getter
 * 如果你不想再重写版本中的getter离修改继承来的属性值,你可以直接通过super.someProperty来返回继承来的值,之中someProperty是你要重写的属性的名字
 
-```
+```swift
 class Circle {
     var radius = 12.5
     var area: String {
@@ -1016,7 +1017,7 @@ print("半径: \(sq.area)")
 
 关键字 final
 
-```
+```swift
 final class Circle {
     final var radius = 12.5
 }
@@ -1033,7 +1034,7 @@ final class Circle {
 
 当存储属性声明为可选时,将自动初始化为nil
 
-```
+```swift
 struct Rectangle {
     let length: Double?
     
@@ -1064,7 +1065,7 @@ print("面积为：\(rectarea.length)")
 
 如果结构体对所有存储型属性提供了默认值且自身没有提供定制的构造器,它们能自动获得一个**逐一成员构造器**.我们在调用逐一成员构造器时,通过与成员属性名相同的参数名进行传值来完成对成员属性的初始赋值.
 
-```
+```swift
 struct Rectangle {
     var length = 100.0, breadth = 200.0
 }
@@ -1076,7 +1077,7 @@ let area = Rectangle(length: 24.0, breadth: 32.0)
 
 构造器可以通过调用其他构造器来完成实例的部分构造过程.这一过程称为构造器搭理,它能减少多个构造器间的代码重复.
 
-```
+```swift
 struct Size {
     var width = 0.0, height = 0.0
 }
@@ -1133,7 +1134,7 @@ print("Rect 结构体初始值: \(centerRect.origin.x, centerRect.origin.y) ")
 
 可以定义便利构造器来调用同一个类中的指定构造器,并未其参数提供默认值.你也可以定义便利构造器来创建一个特殊用途或特定输入的实例.
 
-```
+```swift
 class mainClass {
     var no1 : Int // 局部存储变量
     init(no1 : Int) {
@@ -1165,7 +1166,7 @@ print("res2 为: \(res2.no2)")
 语法为在init关键字后面加添问号(init?)
 或是(init!)
 
-```
+```swift
 struct Animal {
     let species: String
     init?(species:String){
@@ -1184,7 +1185,7 @@ let somecreature = Animal(species:"")
 
 **注意**
 
-```
+```swift
 class Outer {
     let value = "5555"
     var inner = Inner()
@@ -1216,7 +1217,7 @@ outer.fooo()
 
 ```
 
-```
+```swift
 class Outer_m {
     var counter = 0
     var inner :Inner_m? = Inner_m()
@@ -1248,7 +1249,7 @@ class Outer_m {
 可选链 ? !
 ==============
 
-```
+```swift
 class Person {
     var residence: Residence?
 }
@@ -1289,7 +1290,7 @@ if let roomCount = john.residence?.numberOfRooms {
 
 弱引用实例
 
-```
+```swift
 class Module {
     let name: String
     init(name: String) { self.name = name }
@@ -1325,7 +1326,7 @@ ARC 主模块
 
 无主引用实例
 
-```
+```swift
 
 class Student {
     let name: String
@@ -1369,8 +1370,7 @@ ARC
 如果捕获的引用绝对不会置为nil,应该用无主引用,而不是弱引用.
 
 
-```
-
+```swift
 class HTMLElement {
     
     let name: String
@@ -1421,8 +1421,7 @@ swift中类型转换使用is和as操作符实现,is用于检测值得类型,as�
 操作符is来检查一个实例是否属于特定子类型.
 
 
-```
-
+```swift
 class Subjects {
     var physics: String
     init(physics: String) {
@@ -1473,8 +1472,7 @@ for item in sa {
 只有你可以确定想下转型一定会成功时,才使用强制形式(as!).当你试图下转类型为一个不正确的类型是,强制的类型转换会触发一个运行时错误.
 
 
-```
-
+```swift
 for item in sa {
     // 类型转换的条件形式
     if let show = item as? Chemistry {
@@ -1493,8 +1491,7 @@ for item in sa {
 * AnyObject可以代表任何class的实例.
 * Any可以表示任何类型,包括方法类型(function types)
 
-```
-
+```swift
 // 可以存储Any类型的数组 exampleany
 var exampleany = [Any]()
 
@@ -1526,7 +1523,7 @@ Any 实例
 
 ```
 
-```
+```swift
 
 // [AnyObject] 类型的数组
 let saprint: [AnyObject] = [
@@ -1553,7 +1550,7 @@ let saprint: [AnyObject] = [
 * 使一个已有类型符合某个协议
 
 **扩展协议**
-```
+```swift
 extension SomeType: SomeProtocol, AnotherProctocol {
     // 协议实现写到这里
 }
@@ -1561,7 +1558,7 @@ extension SomeType: SomeProtocol, AnotherProctocol {
 
 **计算型属性**
 
-```
+```swift
 
 extension Int {
    var add: Int {return self + 100 }
@@ -1577,7 +1574,7 @@ print("加法运算后的值：\(addition)")
 
 **可变实例方法**
 
-```
+```swift
 
 extension Double {
    mutating func square() {
@@ -1594,7 +1591,7 @@ print("圆的面积为: \(Trial1)")
 
 **下标** 
 
-```
+```swift
 
 extension Int {
    subscript(var multtable: Int) -> Int {
@@ -1623,7 +1620,7 @@ print(7869[1])
 
 如果类在遵循协议的同时拥有父类，应该将父类名放在协议名之前，以逗号分隔。
 
-```
+```swift
 
 class SomeClass: SomeSuperClass, FirstProtocol, AnotherProtocol {
     // 类的内容
@@ -1637,7 +1634,7 @@ class SomeClass: SomeSuperClass, FirstProtocol, AnotherProtocol {
 
 协议中的通常用var来声明变量属性,在类型声明后加上{set get}来表示属性是可读可写的,只读属性则用{get}来表示.
 
-```
+```swift
 
 protocol classa {
     
@@ -1657,7 +1654,7 @@ protocol classa {
 
 例如: 值类型(结构体,枚举)的实例方法中,将mutating作为函数的前缀,写在func之前,表示可以在该方法中修改它所属的实例及其实例属性的值.
 
-```
+```swift
 
 protocol daysofaweek {
     mutating func show()
@@ -1703,7 +1700,7 @@ res.show()
 
 协议可以要求他的遵循者实现指定的构造器.
 
-```
+```swift
 
 protocol tcpprotocol {
    init(aprot: Int)
@@ -1715,7 +1712,7 @@ protocol tcpprotocol {
 
 **makeIterator(),map**
 
-```
+```swift
 
 protocol Generator {
     associatedtype members
@@ -1754,7 +1751,7 @@ print([1,2,3].map({i in i*10}))
 
 协议的继承语法与类的继承想死,多个被继承的协议间用都好分隔:
 
-```
+```swift
 
 protocol InheritingProtocol: SomeProtocol, AnotherProtocol {
     // 协议定义
@@ -1768,7 +1765,7 @@ protocol InheritingProtocol: SomeProtocol, AnotherProtocol {
 
 该class关键字必须是第一个出现在协议的继承列表中,其后,才是其他继承协议,
 
-```
+```swift
 
 protocol SomeClassOnlyProtocol: class, SomeInheritedProtocol {
     // 协议定义
@@ -1780,7 +1777,7 @@ protocol SomeClassOnlyProtocol: class, SomeInheritedProtocol {
 
 swift支持合成多个协议,这在我们需要同时遵守多个协议是非常有用
 
-```
+```swift
 
 protocol Stname {
     var name: String { get }
@@ -1823,7 +1820,7 @@ Person(name: "Roshan", age: 19)
 * as?返回一个可选值,当视力遵循协议时,返回该协议类型;否则返回nil
 * as用以强制向下转型,如果强转失败,会引起运行时错误.
 
-```
+```swift
 
 protocol HasArea {
     var area: Double { get }
@@ -1876,7 +1873,7 @@ for object in objects {
 swift 泛型
 ==============
 
-```
+```swift
 
 // 定义一个交换两个变量的函数
 func swapTwoValues<T>(_ a: inout T, _ b: inout T) {
@@ -1913,7 +1910,7 @@ swapTwoValues后面跟着占位类型名(T),并用尖括号括起来(<T>).这个
 
 **泛型类型**
 
-```
+```swift
 
 struct Stack<Element> {
     var items = [Element]()
@@ -1953,7 +1950,7 @@ print(stackOfInts.items);
 
 **扩展泛型类型**
 
-```
+```swift
 
 extension Stack {
     var topItem: Element? {
@@ -1977,7 +1974,7 @@ if let topItem = stackOfStrings.topItem {
 
 类型约束指定了一个必须继承自指定类的类型参数,或者遵循一个特定的协议或协议构成.
 
-```
+```swift
 func someFunction<T: SomeClass, U: SomeProtocol>(someT: T, someU: U) {
     // 这里是泛型函数的函数体部分
 }
@@ -1987,7 +1984,7 @@ func someFunction<T: SomeClass, U: SomeProtocol>(someT: T, someU: U) {
 
 实例
 
-```
+```swift
 
 // 非泛型函数，查找指定字符串在数组中的索引
 func findIndex(ofString valueToFind: String, in array: [String]) -> Int? {
@@ -2019,7 +2016,7 @@ swift中使用associatedtype关键字来设置关联类型实例.
 
 Container协议只指定了三个任何遵从Container协议的类型必须提供的功能.遵从协议的类型在满足这三个条件的情况下也可以提供其他额外的功能.
 
-```
+```swift
 
 // Container 协议
 protocol Container {
@@ -2075,7 +2072,7 @@ print( tos.count)
 
 可以在参数列表中通过where语句定义参数的约束.
 
-```
+```swift
 
 // 扩展，将 Array 当作 Container 来使用
 extension Array: Container {}
@@ -2137,7 +2134,7 @@ private     | 只能在类中访问,离开了这个类或者结构体的作用�
 
 public是最高级访问级别,private为最低级访问级别.
 
-```
+```swift
 
 public class SomePublicClass {}
 internal class SomeInternalClass {}

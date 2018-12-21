@@ -2,7 +2,7 @@
 
 ## 目录
 
-* <a href="#常用语法"><font size=4 color=#1061ed face="微软雅黑">常用语法</font></a>
+* <a href="#常用语法"><font size=5 color=#1061ed face="微软雅黑">常用语法</font></a>
 * <a href="#函数重载">1. 函数重载</a>
 * <a href="#extern C">2. extern "C"</a>
 * <a href="#默认参数">3. 默认参数</a>
@@ -15,7 +15,7 @@
 * <a href="#程序的本质">9. 程序的本质</a>
 * <a href="#x86_64 简单基础">10. x86_64 简单基础</a>
 * <a href="#引用的本质">11. 引用的本质</a>
-* <a href="#面向对象"><font size=4 color=#1061ed face="微软雅黑">面向对象</font></a>
+* <a href="#面向对象"><font size=5 color=#1061ed face="微软雅黑">面向对象</font></a>
 * <a href="#类">1. 类</a>
 * <a href="#this">2. this</a>
 * <a href="#封装">3. 封装</a>
@@ -64,7 +64,7 @@
 * <a href="#友元">46. 友元</a>
 * <a href="#内部类">47. 内部类</a>
 * <a href="#局部类">48. 局部类</a>
-* <a href="#其他语法"><font size=4 color=#1061ed face="微软雅黑">其他语法</font></a>
+* <a href="#其他语法"><font size=5 color=#1061ed face="微软雅黑">其他语法</font></a>
 * <a href="#运算符重载">1. 运算符重载</a>
 * <a href="#运算符重载-Point">2. 运算符重载-Point</a>
 * <a href="#运算符重载-String">3. 运算符重载-String</a>
@@ -79,7 +79,8 @@
 * <a href="#Lambda表达式 - 外部变量捕获">12. Lambda表达式 - 外部变量捕获</a>
 * <a href="#Lambda表达式 - mutable">13. Lambda表达式 - mutable</a>
 * <a href="#c++14 ">14. c++14 </a>
-* <a>未完</a>
+* <a href="#异常">15. 异常</a>
+* <a href="#智能指针">16. 智能指针</a>
 
 <a id="常用语法"></a>
 
@@ -2405,4 +2406,224 @@ int a;
 auto func = [a =10](){
 	cout << a << endl;
 };
+```
+
+<a id="异常"></a>
+
+### 异常
+
+* 异常没有被处理,会导致程序终止
+
+```cpp
+try{
+	// 被检测的代码
+}catch(异常类型 变量名){
+	// 异常处理代码
+}catch(异常类型 变量名){
+	// 异常处理代码
+}
+
+// 如果想捕捉所有类型的异常
+try{
+
+}catch(...){
+
+}
+```
+
+throw抛出异常后,会在当前函数中查找匹配的catch,找不到就终止当前代码,去上一层函数查找,如果最终找不到匹配的catch,程序终止. 试了下,xcode 不能像上一层函数去查找,sublime会,vs也会
+
+* 为了增强可读性和方便团队协作,如果函数内部可能会抛出异常,建议函数声明下异常类型
+
+```cpp
+// 抛出任意可能的异常
+void func1(){}
+
+// 不破啊出任何异常
+void func2() throw() {}
+
+// 只抛出int,double类型的异常
+void func3() throw(int,double) {}
+```
+
+#### 自定义异常
+
+* 标准异常 std::exception.  exception是所有一同异常的父类
+
+* 自定义异常
+
+```cpp
+class Exception {
+public:
+	virtual const char *what() const = 0;
+};
+
+class DivideException : public Exception {
+public:
+	const char *what() const {
+		return "不能除以0";
+	}
+};
+
+class AddException : public Exception {
+public:
+	const char *what() const {
+		return "加法有问题";
+	}
+};
+
+int divide2(int a, int b) {
+	if (b == 0) throw DivideException();
+	return a / b;
+}
+```
+
+<a id="智能指针"></a>
+
+### 智能指针
+
+* 传统指针存在的问题
+	* 需要手动管理内存
+	* 容易发生内存泄露
+	* 释放之后产生野指针 
+
+* 智能指针就是为了解决传统指针存在的问题
+	* `auto_ptr`: 属于C++98标准，在C++11中已经不推荐使用(有缺陷，比如不能用于数组)
+	* `shared_ptr`:属于C++11标准
+	* `unique_ptr`:属于C++11标准
+ 
+智能指针智能用于堆空间的对象,如果是栈空间的话,会被重复释放,栈空间也不需要手动管理内存.智能指针销毁的时候会释放堆空间的对象,对于`auto_ptr`则会delete操作,不是`delete[]`操作,所以`auto_ptr`对数组不可用
+
+
+#### 智能指针的简单实现
+
+```cpp
+template<class T>
+class SmartPointer {
+	T *m_pointer;
+public:
+	SmartPointer(T *pointer): m_pointer(pointer){}
+	~SmartPointer(){
+		if (m_pointer==nullptr) return;
+		delete m_pointer;
+	}
+	T *operator->(){
+		return m_pointer;
+	}
+};
+```
+
+#### shared_ptr
+
+* 多个`shared_ptr`可以指向同一个对象,当最后一个`shared_ptr`在作用域范围内结束时,对象会被自动释放
+* 针对数组的用法
+
+```cpp
+shared_ptr<Person> ptr1(new Person[5]{},[](Person *p){ delete[] p;});
+
+shared_ptr<Person[]> persons(new Person[5]{});
+``` 
+
+* shared_ptr的原理
+	* 一个`shared_ptr`会对一个对象产生强引用
+	* 每个对象都有个与之对应的强引用计数,记录着当前对象被多少个`shared_ptr`强引用着,可以通过`shared_ptr`的`use_count`函数获得强引用计数
+	* 当有一个新的`shared_ptr`指向对象时,对象的引用计数就会+1
+	* 当有一个`shared_ptr`销毁时,(比如作用域结束),对象的强引用计数就会-1
+	* 当一个对象的的强医用计数为0时,(没有任何`shared_ptr`指向对象时),对象就会销毁
+
+```cpp
+shared_ptr<Person> p1(new Person()); // p1.use_count 1
+shared_ptr<Person> p2 = p1;	// p1.use_count 2
+shared_ptr<Person> p3 = p1;	// p1.use_count 3
+```	
+
+#### shared_ptr的注意点
+
+* 不要使用裸指针来初始化只能指针
+
+下面的代码会走两次析构函数
+
+```cpp
+Person *p = new Person();
+
+{
+	shared_ptr<Person> p1(p);
+}
+
+{
+	shared_ptr<Person> p1(p);
+}
+```
+
+应该写成下面形式:
+
+```cpp
+shared_ptr<Person> p1(new Person());
+shared_ptr<Person> p2(p1);
+```
+
+#### shared_ptr的循环引用问题
+
+```cpp
+class Person;
+class Car{
+public:
+    shared_ptr<Person> m_person = nullptr;
+    Car(){
+        cout << "Car()" << endl;
+    }
+    ~Car(){
+        cout << "~Car()" << endl;
+    }
+};
+class Person{
+public:
+    shared_ptr<Car> m_car = nullptr;
+    Person(){
+        cout << "Person()" << endl;
+    }
+    ~Person(){
+        cout << "~Person()" << endl;
+    }
+};
+
+int main(){
+	 shared_ptr<Person> person(new Person());
+    shared_ptr<Car> car(new Car());
+    person->m_car = car;
+    car->m_person = person;
+	return 0;
+}
+```
+
+上面的代码Person,Car的析构都没有调用.为什么?person,car这个智能指针对象放在栈空间,堆空间有Person对象和Car对象.`m_person`强引用Person对象,`m_car`强引用Car对象. 当main函数执行完后,person,car这两个智能指针对象释放,被回收,不再强引用Person对象,Car对象. 但`m_person`和`m_car`还强引用Person,Car对象,引用计数为为1.造成无法释放.解决方法是将`m_person`或`m_car`变成弱引用
+
+#### weak_ptr
+
+* `weak_ptr` 会对一个对象产生弱引用
+* `weak_ptr`可以指向对象解决`shared_ptr`的循环引用问题
+
+```cpp
+class Person;
+class Car{
+public:
+    weak_ptr<Person> m_person; // 弱引用不用初始化
+};
+class Person{
+public:
+    shared_ptr<Car> m_car = nullptr;
+};
+```
+
+#### unique_ptr
+
+* `unique_ptr`也会对一个对象产生强引用,他可以确保同一时间只有1个指针指向对象
+* `unique_ptr`销毁时(作用域结束时),其指向的对象就自动销毁
+* 可以使用`std::move`函数转义`unique_ptr`的所有权
+
+```cpp
+// ptr1强引用Person对象
+unique_ptr<Person> ptr1(new Person());
+// 转移之后,ptr2强引用着Person对象
+unique_ptr<Person> ptr2 = std::move(ptr1);
 ```

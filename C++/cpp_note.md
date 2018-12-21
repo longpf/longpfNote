@@ -2,7 +2,7 @@
 
 ## 目录
 
-* <a href="#常用语法"><font size=5 color=#1061ed face="微软雅黑">常用语法</font></a>
+* <a href="#常用语法"><font size=5 color=#1061ed face="微软雅黑">--------------常用语法--------------</font></a>
 * <a href="#函数重载">1. 函数重载</a>
 * <a href="#extern C">2. extern "C"</a>
 * <a href="#默认参数">3. 默认参数</a>
@@ -15,7 +15,7 @@
 * <a href="#程序的本质">9. 程序的本质</a>
 * <a href="#x86_64 简单基础">10. x86_64 简单基础</a>
 * <a href="#引用的本质">11. 引用的本质</a>
-* <a href="#面向对象"><font size=5 color=#1061ed face="微软雅黑">面向对象</font></a>
+* <a href="#面向对象"><font size=5 color=#1061ed face="微软雅黑">--------------面向对象--------------</font></a>
 * <a href="#类">1. 类</a>
 * <a href="#this">2. this</a>
 * <a href="#封装">3. 封装</a>
@@ -64,7 +64,7 @@
 * <a href="#友元">46. 友元</a>
 * <a href="#内部类">47. 内部类</a>
 * <a href="#局部类">48. 局部类</a>
-* <a href="#其他语法"><font size=5 color=#1061ed face="微软雅黑">其他语法</font></a>
+* <a href="#其他语法"><font size=5 color=#1061ed face="微软雅黑">--------------其他语法--------------</font></a>
 * <a href="#运算符重载">1. 运算符重载</a>
 * <a href="#运算符重载-Point">2. 运算符重载-Point</a>
 * <a href="#运算符重载-String">3. 运算符重载-String</a>

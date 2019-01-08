@@ -559,8 +559,8 @@ struct Person{
 
 //全局区
 Person g_p1; //调用Person()
-Person g_p2; //这是一个函数声明,函数名叫g_p2
-Person g_p3; //调用Person(int)
+Person g_p2(); //这是一个函数声明,函数名叫g_p2
+Person g_p3(10); //调用Person(int)
 
 int main(){
 	//栈空间

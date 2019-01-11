@@ -3,5 +3,6 @@
 
 * [ios note1](https://github.com/longpf/longpfNote/blob/master/iOS/interview/note1.md)
 * [ios note2](https://github.com/longpf/longpfNote/blob/master/iOS/interview/note2.md)
+* [组件化](https://github.com/longpf/longpfNote/blob/master/iOS/components/组件化.md)
 * [cpp笔记](https://github.com/longpf/longpfNote/blob/master/C%2B%2B/cpp_note.md)
 * [swift简单语法笔记](https://github.com/longpf/longpfNote/blob/master/Swift/swift-simple-notes.md)

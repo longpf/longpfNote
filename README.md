@@ -6,3 +6,5 @@
 * [组件化](https://github.com/longpf/longpfNote/blob/master/iOS/components/组件化.md)
 * [cpp笔记](https://github.com/longpf/longpfNote/blob/master/C%2B%2B/cpp_note.md)
 * [swift简单语法笔记](https://github.com/longpf/longpfNote/blob/master/Swift/swift-simple-notes.md)
+* [shell learn](https://github.com/longpf/longpfNote/blob/master/shell/shelllearn.md)
+* [数据结构与算法之美-王争](https://github.com/longpf/longpfNote/blob/master/算法之美note/0数据结构与算法之美-王争.md)

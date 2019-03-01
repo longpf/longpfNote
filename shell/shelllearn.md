@@ -2,6 +2,12 @@
 2. `#`开头表示注释
 3. `chmod u+x ..` 修改执行权限
 
+
+### echo
+
+* `echo "aaa\c"` 输入内容不换行需在后面加上`\c`
+* `echo * ` 表示匹配当前目录下所有文件名.所以应该`echo "*"`
+
 ### 变量
 
 * 使用变量时要在前面加`$`
@@ -201,9 +207,282 @@
 		echo "$file_name is a dir"
 	elif [ -f $file_name ] ; then
 		echo "$file_name is a file"
-	elif [ -c $file_name -o $file_name ] ; then
+	elif [ -c $file_name -o -b $file_name ] ; then
 		echo "$file_name is a device file"
 	else
 		echo "$file_name is an unknown file"
 	fi
 	```
+	
+### case 流控制语句
+
+* 格式
+
+	```bash
+	case 变量 in 
+	字符串1) 命令表1
+	;;
+	...
+	字符串n) 命令列表n
+	;;
+	*) 命令列表
+	;;
+	esac
+	```
+* 例子
+
+	```bash
+	#! /bin/sh
+	echo "Please select your operation"
+	echo "1 Copy"
+	echo "2 Delete"
+	echo "3 Backup"
+	read op
+	case $op in
+	C)
+	echo "your selection is Copy"
+	;;
+	D)
+	echo "your selection is Delete"
+	;;B)
+	echo "your selection is Backup"
+	;;
+	*)
+	echo "invalide selection"
+	;;
+	esac
+	```
+
+### for...done
+
+* 格式
+
+	```bash
+	for 变量 in 名字表
+	do
+	命令列表
+	done
+	```
+	
+* 例子
+
+	```bash
+	#! /bin/bash
+	# \换行
+	for DAY in Sunday Monday Tuesday Wednesday \
+	Thursday Friday Sturday
+	do
+		echo "the day is:$DAY"
+	done
+	```
+
+### while 
+
+* 格式
+
+	```bash
+	while 条件
+	do
+	命令
+	done
+	```
+	
+* 例子
+
+	```bash
+	#! /bin/bash
+	num=1
+	while [ $num -le 100 ]
+	do
+	squar=`expr $num \* $num`
+	echo $squar
+	num=`expr $num + 1`
+	done
+	```
+	
+### 使用(())扩展shell中算术运算
+
+* 使用方法
+	* 语法 `((表达式1,表达式2))`
+	* 特点:
+		* 双括号中,所有表达式可以像c语言一样.如a++,b--
+		* 双括号中,可以不加入`$`符号前缀
+		* 可以进行逻辑运算,四则运算
+		* 双括号结构扩展了for,while,if条件测试运算
+		* 支持多个表达式运算,用逗号`,`分开
+		
+	* 例子:
+		
+		```bash
+		#! /bin/bash
+		VAR1=1
+		while ((VAR1<100))
+		do
+			echo "$VAR1"
+			((VAR1=VAR1*2))
+		done
+		```
+		
+	
+### 循环语句嵌套
+
+```bash
+#! /bin/bash
+read -p "please enter the line number:" line
+read -p "please enter th char:" char
+a=1
+while [ $a -le $line ]
+do 
+	b=1
+	while [ $b -le $a ]
+	do
+		echo "$char\c"
+		b=`expr $b + 1`
+	done
+	echo
+	a=`expr $a + 1`
+done
+```
+
+```bash
+#! /bin/bash
+read -p "please enter a number:" line
+for (( i = 1; i <= line; i++ )); do
+	for (( j = line-i; j>0; j-- )); do
+		echo " \c"
+	done
+	for (( k = 1; k <= 2*i-1; k++ )); do
+		echo "*\c"
+	done
+	echo
+done
+```
+
+#### break - continue
+
+```bash
+#! /bin/bash
+while true; do
+	echo "*************************"
+	echo "please select your operation"
+	echo "1 Copy"
+	echo "2 Delete"
+	echo "3 Backup"
+	echo "4 Quit"
+	read op
+	case $op in
+		C )
+		echo "Copy"
+		;;
+		D )
+		echo "Delete"
+		;;
+		B )
+		echo "Backup"
+		;;
+		Q )
+		echo "Quit"
+		break
+		;;
+		* )
+		echo "invalide selection"
+		continue
+	esac
+done
+```
+
+### EOF
+
+* EOF(end of file)结尾标识符
+* 通常配合cat来输出用
+
+```bash
+#! /bin/bash
+cat <<EOF
+  *
+  ***
+  ********
+EOF
+```
+
+### Shift参数左移指令
+
+* 每执行一次,参数序列属性左移一个位置,`$#`的值减1,移出去的参数不可再用
+
+	```bash
+	#! /bin/bash
+	if [ $# -le 0 ]; then
+		echo "err!: not enough parameters"
+		exit 124
+	fi
+	sum=0
+	while [ $# -gt 0 ]; do
+		sum=`expr $sum + $1`
+		shift
+	done
+	echo $sum
+	```
+	
+### shell 函数使用方法
+
+* 语法
+
+	```bash
+	# function 可以省略不写.
+	function 函数名() {
+	
+	}
+	
+	# 函数调用不带()
+	# 函数调用
+	函数名 参数1 参数2 ...
+	
+	# 函数中的变量均为全局变量,没有局部变量.
+	# 调用函数时,可以传递参数.在函数中用$1,$2..来引用传递参数
+	```
+	
+* 例子
+
+	```bash
+	#! /bin/bash
+	abc=123
+	example (){
+		abc=456
+		echo $1
+		echo $2
+	}
+	example aaa bbb
+	echo $abc
+	
+	输出:
+	aaa
+	bbb
+	456
+	```
+
+
+### 简单正则
+
+* grep
+	* -v 不匹配
+	* -n 显示行号
+	* --color 显示颜色
+* 简单常用
+
+	```bash
+	grep ^root file  #过滤file中root开头的
+	grep bash$ file
+	grep -n --color \' file # 显示file中含有'的 \去掉特殊符号含义
+	grep spoo* file
+	grep g[ao] file
+	grep ^[^#] file # 不以#开头的
+	grep [3-5] file # 搜索含有3-5数字的
+	grep ^[a-z] file # 以a-z开头的
+	grep -n ^$ file  # 显示空白行
+	grep r..t file #.表示任意字符,以r开头t结尾,长度为4
+	grep ^g.*g file # g开头 g结尾
+	```
+	
+### sed
+
+* stream editor 流编辑器

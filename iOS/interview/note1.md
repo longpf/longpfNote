@@ -65,6 +65,13 @@
 * **KVC的赋值和取值过程是怎样的？原理是什么？**
 
 	<a href="#__kvc">看下面KVC原理</a>
+	
+	
+* **setValue:forKey: 和setObject**
+
+	* 对与可变字典,setValue会调用setObject.当value为nil的时候会清除这对key-value调用removeObject:forkey
+	* setObject:当value为nil的时候会crash
+	* setvalue是NSObject(NSKeyValueCoding),key只能是NSString
 
 <a id="Category0"></a>
 

@@ -73,6 +73,13 @@
 
 <a id="Category0"></a>
 
+* **setValue:forKey: 和setObject**
+
+	* 对与可变字典,setValue会调用setObject.当value为nil的时候会清除这对key-value调用removeObject:forkey
+	* setObject:当value为nil的时候会crash
+	* setvalue是NSObject(NSKeyValueCoding),key只能是NSString
+	
+
 ### Category
 
 * **Category的使用场合是什么？**

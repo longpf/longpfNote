@@ -486,3 +486,42 @@ EOF
 ### sed
 
 * stream editor 流编辑器
+
+
+### 输出到文件
+
+举个例子：ls test.sh test1.sh >success.txt 2>&1
+
+将前面执行结果的标准输出流写入success.txt文件，省略了1，全句为：`ls test.sh test1.sh 1>success.txt 2>&1`
+
+将编译日志输出到文件
+`xcodebuild -project yourproject.xcodeproj -scheme YourBuildScheme -arch arm64 -sdk iphoneos > build-log.txt 2>&1`
+
+
+## 一些指令
+
+* 判断安装XXX
+
+	```bash
+	if which oclint 2>/dev/null; then
+		echo 'oclint exist'
+	else
+		echo 'oclint not exist'
+		echo 'install oclint'
+		brew tap oclint/formulae
+	    brew install oclint
+	fi
+	
+	if which xcpretty 2>/dev/null; then
+		echo 'xcpretty exist'
+	else
+		echo 'xcpretty not exist'
+		brew install xcpretty
+	fi
+	```
+	
+* 导出文件到XXX
+
+	```bash
+	xcodebuild -project yourproject.xcodeproj -scheme YourBuildScheme -arch arm64 -sdk iphoneos > build-log.txt 2>&1
+	```

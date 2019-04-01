@@ -1,12 +1,69 @@
+* <a href="#echo">echo</a>
+* <a href="#数组">数组</a>
+* <a href="#变量">变量</a>
+* <a href="#Read命令">Read命令</a>
+* <a href="#expr命令">expr命令</a>
+* <a href="#test判断语句">test判断语句</a>
+* <a href="#条件控制if">条件控制if</a>
+* <a href="#case 流控制语句">case 流控制语句</a>
+* <a href="#for...done">for...done</a>
+* <a href="#while"> while</a>
+* <a href="#使用(())扩展shell中算术运算">使用(())扩展shell中算术运算</a>
+* <a href="#循环语句嵌套">循环语句嵌套</a>
+* <a href="#break - continue">break - continue</a>
+* <a href="#EOF">EOF</a>
+* <a href="#Shift参数左移指令">Shift参数左移指令</a>
+* <a href="#shell 函数使用方法">shell 函数使用方法</a>
+* <a href="#正则">正则</a>
+* <a href="#输出到文件">输出到文件</a>
+* <a href="#判断安装">判断安装</a>
+* <a href="#githook hook commit"></a>
+
+
 1. `#!/bin/bash`  #!跟用shell命令的完全路径,作用:显示后期命令以哪种shell来执行这些命令. 没有指定的话,就用当前的shell
 2. `#`开头表示注释
 3. `chmod u+x ..` 修改执行权限
 
 
+<a id="echo"></a>
+
 ### echo
 
 * `echo "aaa\c"` 输入内容不换行需在后面加上`\c`
 * `echo * ` 表示匹配当前目录下所有文件名.所以应该`echo "*"`
+
+
+<a id="数组"></a>
+
+### 数组
+
+```bash
+初始化一个数组
+arr=(a b c)
+arr=("add:" "change:")
+
+数组转字符串
+str=`echo ${arr[*]}`
+str=${arr[@]}
+
+数组的长度
+len=${#arr[*]}
+
+取第一个元素
+${arr[1]}
+
+取数组的所有元素
+echo ${arr[@]:0}
+
+取数组的第1-2个元素
+echo ${arr[@]:1:2}
+
+数组增加元素
+arr[${#arr[*]}]=test
+```
+
+
+<a id="变量"></a>
 
 ### 变量
 
@@ -60,6 +117,9 @@
 	$?		执行上一个指令的返回值
 	```
 		
+		
+<a id="Read命令">	</a>
+		
 ### Read命令
 
 * 作用: 从键盘读取数据,赋给变量
@@ -68,6 +128,8 @@
 	read a b c
 	echo $a $b $c
 	```
+	
+<a id="expr命令"></a>
 		
 ### expr命令
 
@@ -101,6 +163,9 @@
 	var4=8
 	expr `expr 5 + 11` / $var4
 	```
+	
+	
+<a id="test判断语句"></a>
 	
 ### test判断语句
 
@@ -159,6 +224,8 @@
 	test -x file
 	[ -x file ]
 	```
+	
+<a id="条件控制if"></a>
 
 ### 条件控制if
 
@@ -214,6 +281,8 @@
 	fi
 	```
 	
+<a id="case 流控制语句"></a>
+	
 ### case 流控制语句
 
 * 格式
@@ -252,6 +321,8 @@
 	;;
 	esac
 	```
+	
+<a id="for...done"></a>
 
 ### for...done
 
@@ -275,6 +346,8 @@
 		echo "the day is:$DAY"
 	done
 	```
+
+<a id="while"></a>
 
 ### while 
 
@@ -300,6 +373,8 @@
 	done
 	```
 	
+<a id="使用(())扩展shell中算术运算"></a>
+	
 ### 使用(())扩展shell中算术运算
 
 * 使用方法
@@ -322,7 +397,8 @@
 			((VAR1=VAR1*2))
 		done
 		```
-		
+
+<a id="循环语句嵌套"></a>
 	
 ### 循环语句嵌套
 
@@ -358,6 +434,8 @@ for (( i = 1; i <= line; i++ )); do
 done
 ```
 
+<a id="break - continue"></a>
+
 #### break - continue
 
 ```bash
@@ -391,6 +469,8 @@ while true; do
 done
 ```
 
+<a id="EOF"></a>
+
 ### EOF
 
 * EOF(end of file)结尾标识符
@@ -404,6 +484,8 @@ cat <<EOF
   ********
 EOF
 ```
+
+<a id="Shift参数左移指令"></a>
 
 ### Shift参数左移指令
 
@@ -422,6 +504,8 @@ EOF
 	done
 	echo $sum
 	```
+	
+<a id="shell 函数使用方法"></a>
 	
 ### shell 函数使用方法
 
@@ -461,7 +545,9 @@ EOF
 	```
 
 
-### 简单正则
+<a id="正则"></a>
+
+### 正则
 
 * grep
 	* -v 不匹配
@@ -483,10 +569,21 @@ EOF
 	grep ^g.*g file # g开头 g结尾
 	```
 	
+	```bash
+	将COMMIT_MSG_Standard中的元素转字符串匹配MSG_AHEAD
+	=~表示正则匹配
+	if [[ ${COMMIT_MSG_Standard[@]} =~ "$MSG_AHEAD:" ]]; then
+	
+	&>/dev/null等价/dev/null 2>&1. 将输出结果定向到/dev/null就是将结果丢弃,
+	-w的意思就按word匹配
+	if echo "${COMMIT_MSG_Standard[@]}" | grep -w "$MSG_AHEAD" &>/dev/null; then
+	```
+	
 ### sed
 
 * stream editor 流编辑器
 
+<a id="输出到文件"></a>
 
 ### 输出到文件
 
@@ -498,7 +595,9 @@ EOF
 `xcodebuild -project yourproject.xcodeproj -scheme YourBuildScheme -arch arm64 -sdk iphoneos > build-log.txt 2>&1`
 
 
-## 一些指令
+<a id="判断安装"></a>
+
+### 判断安装
 
 * 判断安装XXX
 
@@ -519,9 +618,97 @@ EOF
 		brew install xcpretty
 	fi
 	```
-	
-* 导出文件到XXX
+
+<a id="githook hook commit"></a>
+
+### githook hook commit
+
+* 提交规范化
 
 	```bash
-	xcodebuild -project yourproject.xcodeproj -scheme YourBuildScheme -arch arm64 -sdk iphoneos > build-log.txt 2>&1
+	# 获取左后一次提交
+	COMMIT_EDITMSG=$1
+	COMMIT_MSG=`cat $COMMIT_EDITMSG`
+	# 将COMMIT_MSG以:分割去第一部分  如echo "a/b/c" |cut -d '/' -f 1输出的为a
+	MSG_AHEAD=`echo $COMMIT_MSG | cut -d ':' -f 1`
+	
+	MSG_TYPE=$2
+	
+	COMMIT_MSG_Standard=("add:" "change:" "del:" "fix:")
+	
+	# 查看是否是add: change: del: fix:开头
+	function arr_contain(){
+		# 局部变量
+		local arr=`echo "$1"`
+		local tmp
+		for tmp in ${arr[*]}; do
+			if [ "$2" == "$tmp" ]; then
+				echo true
+				return
+			fi
+		done
+		echo false
+	}
+	
+	
+	function hookMessage() {
+	
+		case $MSG_TYPE in
+			message )
+			
+			local configUserName=`git config user.name`
+			local errorLog=`echo "\033[31m 你的提交信息不规范❌ \033[0m"`
+			local colorErrorUserName=`echo "\033[41;36m $configUserName \033[0m"`
+			local colorSuccessUserName=`echo "\033[42;37m $configUserName \033[0m"`
+	
+	
+			# if [[ ${COMMIT_MSG_Standard[@]} =~ "$MSG_AHEAD:" ]]; then
+			# 	contain="YES"
+			# else
+			# 	contain="NO"
+			# fi
+	
+			# if echo "${COMMIT_MSG_Standard[@]}" | grep -w "$MSG_AHEAD" &>/dev/null; then
+			# 	contain="YES"
+			# else
+			# 	contain="NO"
+			# fi
+	
+			commit_arr=`echo ${COMMIT_MSG_Standard[*]}`
+			arr_contain_result=`arr_contain "$commit_arr" "$MSG_AHEAD:"`
+			contain=$arr_contain_result
+	
+			if $contain; then
+				echo
+				echo
+				echo "$colorSuccessUserName ✅"
+				echo
+				exit 0
+			else
+				echo
+				echo Hi $colorErrorUserName $errorLog
+				echo
+	
+	cat << EOF
+	================= 请务必遵循下面规范 ================
+	   ${COMMIT_MSG_Standard[0]}            ✅
+	   ${COMMIT_MSG_Standard[1]}         ✅
+	   ${COMMIT_MSG_Standard[2]}            ✅
+	   ${COMMIT_MSG_Standard[3]}            ✅
+	====================================================
+	EOF
+				echo
+				exit 1
+				fi
+			;;
+	
+			* )
+			echo "$MSGTYPE"
+		 	;;
+		esac
+	}
+	
+	hookMessage
 	```
+
+	

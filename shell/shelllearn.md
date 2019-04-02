@@ -17,7 +17,10 @@
 * <a href="#正则">正则</a>
 * <a href="#输出到文件">输出到文件</a>
 * <a href="#判断安装">判断安装</a>
-* <a href="#githook hook commit"></a>
+* <a href="#githook hook commit">githook hook commit</a>
+
+
+[http://www.runoob.com/linux/linux-comm-scp.html](http://www.runoob.com/linux/linux-comm-scp.html)
 
 
 1. `#!/bin/bash`  #!跟用shell命令的完全路径,作用:显示后期命令以哪种shell来执行这些命令. 没有指定的话,就用当前的shell

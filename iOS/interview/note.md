@@ -648,6 +648,8 @@ isa在64位之前是直接指向class或meta-class,64位之后要`&ISA_MASK`
 
 ![](pic_27.png)
 
+![](pic_buchong_1.png)
+
 ### __block的内存管理
 
 ![](pic_28.png)
@@ -980,6 +982,8 @@ CFRunLoopGetMain();
 <a id="__runloop逻辑02"></a>
 
 #### Source0,Source1,Timers,Observers 执行逻辑
+
+* 补充: [https://blog.csdn.net/SL_ideas/article/details/76593854](https://blog.csdn.net/SL_ideas/article/details/76593854)
 
 ![](pic_57.png)
 

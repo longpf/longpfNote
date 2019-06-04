@@ -498,6 +498,8 @@ isa在64位之前是直接指向class或meta-class,64位之后要`&ISA_MASK`
 
 ![](pic_27.png)
 
+![](pic_buchong_1.png)
+
 ### __block的内存管理
 
 ![](pic_28.png)

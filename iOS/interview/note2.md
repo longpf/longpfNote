@@ -224,6 +224,9 @@ CFRunLoopGetMain();
 
 #### Source0,Source1,Timers,Observers 执行逻辑
 
+* 补充: [https://blog.csdn.net/SL_ideas/article/details/76593854](https://blog.csdn.net/SL_ideas/article/details/76593854)
+
+
 ![](pic_57.png)
 
 ![](pic_58.png)

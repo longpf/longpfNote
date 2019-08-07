@@ -22,7 +22,7 @@
  
 	系统分配了16个字节给NSObject对象（通过`malloc_size`,runtime.h头文件函数获得）,oc对象的allocwithzone:的内部分配内存的时候,会按照16的倍数分配,方便操作系统分配内存.这个可以看libmalloc源码,[https://opensource.apple.com/tarballs/](https://opensource.apple.com/tarballs/)
 	
-	但NSObject对象内部只使用了8个字节的空间（64bit环境下，可以通过`class_getInstanceSize`函数获得）.`class_getInstanceSize`获得NSObject实例对象的成员变量所占用的大小8.转成C++后是一个`NSObject_IMPL`的结构体,这个结构体中只有一个isa的成员变量.如果一个类继承NSObject并且有一个long类型的成员变量,那么用`class_getInstanceSize`获取到的为16字节.如果不是long是int类型,还是16.因为结构体对齐.8+4=12然后在对齐.他和sizeof的区别:sizeof是运算符,一编译就会生成一个常数,他传入的参数是类型.`class_getInstanceSize`传入的是一个对象,是程序运行时的
+	但NSObject对象内部只使用了8个字节的空间（64bit环境下，可以通过`class_getInstanceSize`函数获得）.`class_getInstanceSize`获得NSObject实例对象的成员变量所占用的大小8.转成C++后是一个`NSObject_IMPL`的结构体,这个结构体中只有一个isa的成员变量,是一个指针.如果一个类继承NSObject并且有一个long类型的成员变量,那么用`class_getInstanceSize`获取到的为16字节.如果不是long是int类型,还是16.因为结构体对齐.8+4=12然后在对齐.他和sizeof的区别:sizeof是运算符,一编译就会生成一个常数,他传入的参数是类型.`class_getInstanceSize`传入的是一个对象,是程序运行时的
 
 *  **对象的isa指针指向哪里？**
 
@@ -42,7 +42,7 @@
 * **iOS用什么方式实现对一个对象的KVO？(KVO的本质是什么？)**
 
 	利用RuntimeAPI动态生成一个子类，并且让instance对象的isa指向这个全新的子类
-当修改instance对象的属性时，会调用Foundation的`_NSSetXXXValueAndNotify`函数,这个函数会调用下面方法
+当修改instance对象的属性时，会调用Foundation的`_NSSetXXXValueAndNotify`函数,这个是在NSKVONotificatingXXX这个中间类的set方法中触发,这个函数会调用下面方法
 
 	willChangeValueForKey:
 
@@ -57,7 +57,7 @@
 	
 * **直接修改成员变量会触发KVO么？**
 	
-	不会触发KVO
+	不会触发KVO. 
 
 <a id="KVC0"></a>
 
@@ -410,6 +410,10 @@ xcode实时查看内存数据,Debug->Debug Workflow ->View Memory
 #### isa,superclass总结
 
 ![](pic_4.png)
+
+#### 实例,类,元类关系图
+
+![](pic_4-2.png)
 
 
 

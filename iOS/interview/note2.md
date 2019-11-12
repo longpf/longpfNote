@@ -1,6 +1,15 @@
 ## 目录
 
 * <a href="#RunLoop0">RunLoop问题</a> , <a href="#RunLoop1">RunLoop知识点</a>
+	* [经典的--深入理解RunLoop](https://blog.ibireme.com/2015/05/18/runloop/)
+	* <a href="#RunLoop休眠的实现原理">RunLoop休眠的实现原理</a> 
+	* <a href="#runloop与AutoreleasePool">runloop与AutoreleasePool</a> 
+	* <a href="#runloop与事件响应">runloop与事件响应</a> 
+	* <a href="#runloop与手势识别">runloop与手势识别</a> 
+	* <a href="#runloop与界面更新">runloop与界面更新</a> 
+	* <a href="#runloop与定时器">runloop与定时器</a> 
+	* <a href="#runloop与GCD">runloop与GCD</a> 
+	* <a href="#runloop与网络请求">runloop与网络请求</a> 
 * <a href="#多线程0">多线程问题</a> , <a href="#多线程1">多线程知识点</a>
 * <a href="#内存管理0">内存管理问题</a> , <a href="#内存管理1">内存管理知识点</a>
 * <a href="#性能优化0">性能优化问题</a> , <a href="#性能优化1">性能优化知识点</a>
@@ -114,6 +123,12 @@
 * **weak指针的实现原理**
 
 	将弱引用存到散列表中,当对象销毁时,取出当前对象对应弱引用表,把弱引用存储的对象给清除掉
+	
+	[https://www.jianshu.com/p/1d99e1505f03](https://www.jianshu.com/p/1d99e1505f03)	
+
+1. 当给一个weak属性赋值时,会根据被赋值对象地址为key,当前指针的地址为value在全局的weak表中注册一条记录,如果注册表中当前指针之前指向了一个旧的对象.那么先把之前的那条删除,再添加新的.weak表key是对象地址,value是数组或是hash表.当指针个数小于4的时候是数组
+2. 当weak指向的对象销毁时,64位的指针中有一位标记是否存在weak指针,如果存在,会用改对象当做key去weak表中查找记录,如果有记录,会对所有指向该对象的指针置nil
+3. 可见使用weak时,在赋值与对象销毁的过程中会产生很多的额外操作,在对性能有极限要求的地方可以考虑使用__unsafe_unretained,当然是不影响使用的前提下.(比如YYCache源码中,作者在实现链表的next和pre指针时,就用__unsafe_unretained来代替weak)
 
 * **autorelease对象在什么时机会被调用release**
 	
@@ -157,6 +172,8 @@
 
 
 ### RunLoop对象
+
+[经典的--深入理解RunLoop](https://blog.ibireme.com/2015/05/18/runloop/)
 
 * ios中有2套api来访问和使用RunLoop
 	* Foundation: NSRunLoop
@@ -241,11 +258,164 @@ CFRunLoopGetMain();
 	[[NSRunloop currentRunLoop] performBlock:...];
 	```
 	
+<a id="RunLoop休眠的实现原理"></a>
 	
-#### RunLoop休眠的实现原理
+### RunLoop休眠的实现原理
 
+runloop的核心是基于mach port的,其进入休眠时调用mach_mag().
+
+![](pic_buchong_2.png)
+
+苹果官方将整个系统大致划分为上述4个层次:
+
+* 应用层包括用户能够接触到的图形应用,例如:Spotlight,Aqua,SpringBoard等
+* 应用框架层即开发人员接触到的Cocoa等框架
+* 核心框架层包括各种核心框架,OpenGL等内容
+* Darwin即操作系统给的核心,包括系统内核,驱动,Shell等内容,这一层开源的[http://opensource.apple.com/](http://opensource.apple.com/)
+
+看下Darwin这个核心的架构:
+
+其中,在硬件层上面的三个组成部分: Mach,BSD,IOKit(还有一些上面没标注的内容),共同组成了XNU内核.
+
+* XNU内核的内环被称做Mach,其作为一个微内核,仅提供诸如处理调度,IPC(进程间通信)等非常少量的基础服务.
+* BSD层可以看做围绕Mach层的一个外环,其提供了诸如进程管理,文件系统和网络等功能.
+* IOKit层可以是为设备驱动提供了一个面向对象(C++)的一个框架.
+
+Mach本身提供的API非常有限,而且苹果也不鼓励使用Mach的API,但没有这些API的话,其他任何工作都无法实施.在Mach中所有的东西都是通过自己的对象实现的.进程,线程和虚拟内存都被称为'对象'.和其他框架不同,Mach的对象不能直接调用,只能通过消息传递的方式实现对象间的通信.消息是Mach中最基础的概念,消息在两个端口(port)之间传递,这就是IPC(进程间通信)的核心.
+
+```c
+typedef struct {
+  mach_msg_header_t header;
+  mach_msg_body_t body;
+} mach_msg_base_t;
+ 
+typedef struct {
+  mach_msg_bits_t msgh_bits;
+  mach_msg_size_t msgh_size;
+  mach_port_t msgh_remote_port;
+  mach_port_t msgh_local_port;
+  mach_port_name_t msgh_voucher_port;
+  mach_msg_id_t msgh_id;
+} mach_msg_header_t;
+
+mach_msg_return_t mach_msg(
+mach_msg_header_t *msg,
+mach_msg_option_t option,
+mach_msg_size_t send_size,
+mach_msg_size_t rcv_size,
+mach_port_name_t rcv_name,
+mach_msg_timeout_t timeout,
+mach_port_name_t notify);
+```
+
+一条Mach消息时间上就是一个二进制数据包,其头部定义了当前端口`local_port`和目标端口`remote_port`,发送和接受消息是通过一个API进行的,其中option标记了传递方向.
+
+为了实现发送和接受,runloop的休眠操作`mach_msg()`函数实际上调用了一个Mach陷阱(trap),即`mach_msg_trap()`,陷阱在Mach中等同于系统调用,当在用户态调用`mach_msg_trap()`就会触发陷阱机制,切换到内核态,内核态实现`mach_msg()`的实际工作.如下图
+
+![](pic_buchong_3.png)
+
+runloop核心就是一个`mach_msg()`,runloop调用这个函数,如果没有别人发送port消息过来,内核就会将现场置于等待状态.例如你在模拟器里跑起一个 iOS 的 App,然后在 App 静止时点击暂停,你会看到主线程调用栈是停留在 `mach_msg_trap()` 这个地方
 
 ![](pic_67.png)
+
+<a id="runloop与AutoreleasePool"></a>
+
+### runloop与AutoreleasePool
+
+App启动后，苹果在主线程 RunLoop 里注册了两个 Observer，其回调都是 _wrapRunLoopWithAutoreleasePoolHandler()。
+
+第一个 Observer 监视的事件是 Entry(即将进入Loop)，其回调内会调用 `_objc_autoreleasePoolPush()` 创建自动释放池。其 order 是-2147483647，优先级最高，保证创建释放池发生在其他所有回调之前。
+
+第二个 Observer 监视了两个事件： BeforeWaiting(准备进入休眠) 时调用`_objc_autoreleasePoolPop()` 和 `_objc_autoreleasePoolPush()` 释放旧的池并创建新池；Exit(即将退出Loop) 时调用 `_objc_autoreleasePoolPop()` 来释放自动释放池。这个 Observer 的 order 是 2147483647，优先级最低，保证其释放池子发生在其他所有回调之后。
+
+在主线程执行的代码，通常是写在诸如事件回调、Timer回调内的。这些回调会被 RunLoop 创建好的 AutoreleasePool 环绕着，所以不会出现内存泄漏，开发者也不必显示创建 Pool 了。
+
+<a id="runloop与事件响应"></a>
+
+### runloop与事件响应
+
+苹果注册了一个 Source1 (基于 mach port 的) 用来接收系统事件，其回调函数为 __IOHIDEventSystemClientQueueCallback()。
+
+当一个硬件事件(触摸/锁屏/摇晃等)发生后，首先由 IOKit.framework 生成一个 IOHIDEvent 事件并由 SpringBoard 接收。SpringBoard 只接收按键(锁屏/静音等)，触摸，加速，接近传感器等几种 Event，随后用 mach port 转发给需要的App进程。随后苹果注册的那个 Source1 就会触发回调，并调用 _UIApplicationHandleEventQueue() 进行应用内部的分发。
+
+_UIApplicationHandleEventQueue() 会把 IOHIDEvent 处理并包装成 UIEvent 进行处理或分发，其中包括识别 UIGesture/处理屏幕旋转/发送给 UIWindow 等。通常事件比如 UIButton 点击、touchesBegin/Move/End/Cancel 事件都是在这个回调中完成的。
+
+<a id="runloop与手势识别"></a>
+
+### runloop与手势识别
+
+当上面的 _UIApplicationHandleEventQueue() 识别了一个手势时，其首先会调用 Cancel 将当前的 touchesBegin/Move/End 系列回调打断。随后系统将对应的 UIGestureRecognizer 标记为待处理。
+
+**苹果注册了一个 Observer 监测 BeforeWaiting (Loop即将进入休眠) 事件，这个Observer的回调函数是 _UIGestureRecognizerUpdateObserver()，其内部会获取所有刚被标记为待处理的 GestureRecognizer，并执行GestureRecognizer的回调。**
+
+当有 UIGestureRecognizer 的变化(创建/销毁/状态改变)时，这个回调都会进行相应处理。
+
+<a id="runloop与界面更新"></a>
+
+### runloop与界面更新
+
+当在操作 UI 时，比如改变了 Frame、更新了 UIView/CALayer 的层次时，或者手动调用了 UIView/CALayer 的 setNeedsLayout/setNeedsDisplay方法后，这个 UIView/CALayer 就被标记为待处理，并被提交到一个全局的容器去。
+
+苹果注册了一个 Observer 监听 BeforeWaiting(即将进入休眠) 和 Exit (即将退出Loop) 事件，回调去执行一个很长的函数：
+_ZN2CA11Transaction17observer_callbackEP19__CFRunLoopObservermPv()。这个函数里会遍历所有待处理的 UIView/CAlayer 以执行实际的绘制和调整，并更新 UI 界面。
+
+这个函数内部的调用栈大概是这样的：
+
+```objective-c
+_ZN2CA11Transaction17observer_callbackEP19__CFRunLoopObservermPv()
+    QuartzCore:CA::Transaction::observer_callback:
+        CA::Transaction::commit();
+            CA::Context::commit_transaction();
+                CA::Layer::layout_and_display_if_needed();
+                    CA::Layer::layout_if_needed();
+                        [CALayer layoutSublayers];
+                            [UIView layoutSubviews];
+                    CA::Layer::display_if_needed();
+                        [CALayer display];
+                            [UIView drawRect];
+```
+
+<a id="runloop与定时器"></a>
+
+### runloop与定时器
+
+NSTimer 其实就是 CFRunLoopTimerRef，他们之间是 toll-free bridged 的。一个 NSTimer 注册到 RunLoop 后，RunLoop 会为其重复的时间点注册好事件。例如 10:00, 10:10, 10:20 这几个时间点。RunLoop为了节省资源，并不会在非常准确的时间点回调这个Timer。Timer 有个属性叫做 Tolerance (宽容度)，标示了当时间点到后，容许有多少最大误差。如果错过了10:10就要等10:20的了
+
+CADisplayLink 是一个和屏幕刷新率一致的定时器（但实际实现原理更复杂，和 NSTimer 并不一样，其内部实际是操作了一个 Source）。如果在两次屏幕刷新之间执行了一个长任务，那其中就会有一帧被跳过去（和 NSTimer 相似），造成界面卡顿的感觉。在快速滑动TableView时，即使一帧的卡顿也会让用户有所察觉
+
+当调用 NSObject 的 performSelecter:afterDelay: 后，实际上其内部会创建一个 Timer 并添加到当前线程的 RunLoop 中。所以如果当前线程没有 RunLoop，则这个方法会失效。
+
+当调用 performSelector:onThread: 时，实际上其会创建一个 Timer 加到对应的线程去，同样的，如果对应线程没有 RunLoop 该方法也会失效。
+
+<a id="runloop与GCD"></a>
+
+### runloop与GCD
+
+当调用 dispatch_async(dispatch_get_main_queue(), block) 时，libDispatch 会向主线程的 RunLoop 发送消息，RunLoop会被唤醒，并从消息中取得这个 block，并在回调 `__CFRUNLOOP_IS_SERVICING_THE_MAIN_DISPATCH_QUEUE__()` 里执行这个 block。但这个逻辑仅限于 dispatch 到主线程，dispatch 到其他线程仍然是由 libDispatch 处理的。
+
+<a id="runloop与网络请求"></a>
+
+### runloop与网络请求
+
+iOS 中，关于网络请求的接口自下至上有如下几层:
+
+```objective-c
+CFSocket
+CFNetwork       ->ASIHttpRequest
+NSURLConnection ->AFNetworking
+NSURLSession    ->AFNetworking2, Alamofire
+```
+
+* CFSocket 是最底层的接口，只负责 socket 通信。
+* CFNetwork 是基于 CFSocket 等接口的上层封装，ASIHttpRequest 工作于这一层。
+* NSURLConnection 是基于 CFNetwork 的更高层的封装，提供面向对象的接口，AFNetworking 工作于这一层。
+* NSURLSession 是 iOS7 中新增的接口，表面上是和 NSURLConnection 并列的，但底层仍然用到了 NSURLConnection 的部分功能 (比如 com.apple.NSURLConnectionLoader 线程)，AFNetworking2 和 Alamofire 工作于这一层。
+
+下面主要介绍下 NSURLConnection 的工作过程。
+
+通常使用 NSURLConnection 时，你会传入一个 Delegate，当调用了 [connection start] 后，这个 Delegate 就会不停收到事件回调。实际上，start 这个函数的内部会会获取 CurrentRunLoop，然后在其中的 DefaultMode 添加了4个 Source0 (即需要手动触发的Source)。CFMultiplexerSource 是负责各种 Delegate 回调的，CFHTTPCookieStorage 是处理各种 Cookie 的。
+
+当开始网络传输时，我们可以看到 NSURLConnection 创建了两个新线程：com.apple.NSURLConnectionLoader 和 com.apple.CFSocket.private。其中 CFSocket 线程是处理底层 socket 连接的。NSURLConnectionLoader 这个线程内部会使用 RunLoop 来接收底层 socket 的事件，并通过之前添加的 Source0 通知到上层的 Delegate。
 
 <a id="__线程保活"></a>
 

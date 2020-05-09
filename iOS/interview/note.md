@@ -1476,6 +1476,8 @@ if (!self.thread) return;
 
 #### CADisplayLink、NSTimer使用注意
 
+CADisplayLink 基于source1
+
 ![](pic_85.png)
 
 #### GCD定时器

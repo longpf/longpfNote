@@ -2,7 +2,9 @@
 
 * <a href="#1. 两数之和">1. 两数之和</a>
 * <a href="#2. 两数相加">2. 两数相加</a>
+* <a href="#3. 无重复字符的最长子串">3. 无重复字符的最长子串</a>
 * <a href="#15. 三数之和">15. 三数之和</a>
+* <a href="#42. 接雨水">42. 接雨水</a>
 * <a href="#321. 拼接最大数">321. 拼接最大数</a>
 * <a href="#1101. 彼此熟识的最早时间">1101. 彼此熟识的最早时间</a>
 
@@ -98,6 +100,39 @@ ListNode* addTwoNumbers(ListNode* l1, ListNode* l2) {
 }
 ```
 
+<a id="3. 无重复字符的最长子串"></a>
+
+### 3. 无重复字符的最长子串
+
+给定一个字符串，请你找出其中不含有重复字符的 最长子串 的长度。
+
+```cpp
+输入: "abcabcbb"   输出: 3 
+输入: "bbbbb" 	 输出: 1
+输入: "pwwkew" 	 输出: 3
+输入 "tmmzuxt"  	 输出: 5
+```
+
+滑动窗口,窗户每次向右滑动都要维护left
+
+```cpp
+int lengthOfLongestSubstring(string s) {
+    vector<int> m(256,0);
+    int res = 0,left = 0; // left滑动窗口左侧
+    for (int i=0;i<s.size();i++) {
+        char c = s[i];
+        // left>m[c], 说明在left到i之间没有字符c
+        if (m[c]==0 || left > m[c]) {
+            res = max(res,i-left+1);
+        }else {
+            left = m[c];
+        }
+        m[c] = i+1;
+    }
+    return res;
+}
+```
+
 
 <a id="15. 三数之和"></a>
 ### 15. 三数之和
@@ -134,6 +169,56 @@ vector<vector<int>> threeSum(vector<int>& nums) {
         }
         return res;
     }
+```
+
+<a id="42. 接雨水"></a>
+### 42. 接雨水
+
+给定 n 个非负整数表示每个宽度为 1 的柱子的高度图，计算按此排列的柱子，下雨之后能接多少雨水。
+
+![](https://assets.leetcode-cn.com/aliyun-lc-upload/uploads/2018/10/22/rainwatertrap.png)
+
+```
+输入: [0,1,0,2,1,0,1,3,2,1,2,1]
+输出: 6
+```
+
+hard.  
+
+双指针,第i个元素对总水量的贡献为R(i),设它左边的最大高度maxLeft,右侧最大高度maxRight,则1R(i)=min(maxLeft,maxRight)-height[i]`
+
+解:
+
+```cpp
+int trap(vector<int>& height) {
+    int l = 0, r = height.size()-1;
+    // 左侧和右侧 可用的最大值. 第i个元素左侧可用最大值,和右侧可用最大值的存储
+    int level = 0; 
+    int water = 0;
+    while (l < r) {
+        int lower = height[height[l] < height[r] ? l++ : r--];
+        level = max(level, lower);
+        water += level-lower;
+    }
+    return water;
+}
+// 比上面的解法更好理解
+int trap(vector<int>& height) {
+    int l = 0,r = height.size()-1;
+    int water = 0;
+    int l_max = 0,r_max = 0;
+    while (l < r) {
+        if (height[l] < height[r]) {
+            height[l] >= l_max ? (l_max = height[l]) : water += (l_max-height[l]);
+            l++;
+        }
+        else {
+            height[r] >= r_max ? (r_max = height[r]) : water += (r_max-height[r]);
+            r--;
+        }
+    }
+    return water;
+}
 ```
 
 <a id="321. 拼接最大数"></a>

@@ -3,6 +3,7 @@
 * <a href="#1. 两数之和">1. 两数之和</a>
 * <a href="#2. 两数相加">2. 两数相加</a>
 * <a href="#3. 无重复字符的最长子串">3. 无重复字符的最长子串</a>
+* <a href="#5. 最长回文子串">5. 最长回文子串</a>
 * <a href="#15. 三数之和">15. 三数之和</a>
 * <a href="#42. 接雨水">42. 接雨水</a>
 * <a href="#321. 拼接最大数">321. 拼接最大数</a>
@@ -130,6 +131,81 @@ int lengthOfLongestSubstring(string s) {
         m[c] = i+1;
     }
     return res;
+}
+```
+
+<a id="5. 最长回文子串"></a>
+### 5. 最长回文子串
+
+给定一个字符串 s，找到 s 中最长的回文子串。你可以假设 s 的最大长度为 1000。
+
+```
+输入: "babad"
+输出: "bab"
+注意: "aba" 也是一个有效答案。
+
+输入: "cbbd"
+输出: "bb"
+```
+
+解:
+
+```cpp
+string longestPalindrome(string s) {
+    int startIndex = 0,len = 0,left = 0,right = 0;
+    for (int i = 0; i < (int)s.size() - 1 ;i++) {
+        if (s[i]==s[i+1]){
+            left = i;
+            right = i+1;
+            searchPalindrome(s,startIndex,len,left,right);
+        }
+        left = i;
+        right = i;
+        searchPalindrome(s,startIndex,len,left,right);
+    }
+    if (len==0) {
+        len = s.size();
+    }
+    return s.substr(startIndex,len);
+}
+    
+void searchPalindrome(string &s,int &startIndex,int &len,int left,int right) {
+    int step = 1;
+    while (left-step>=0 && right+step < s.size()) {
+        if (s[left-step] != s[right+step])
+            break;
+        step++;
+    }
+    int length = right-left+2*step-1;
+    if (length > len) {
+        startIndex = left-step+1;
+        len = length;
+    }
+}
+
+// 动态规划解法
+dp[j][i]表示字符区间[j,i]是否为回文串
+i=j, 为回文串
+i=j+1 && s[i]=s[j] 相邻情况为回文串
+i-j>=2 && dp[j+1][i-1] 为回文串
+
+string longestPalindrome(string s) {
+    int size = s.size();
+    if (size<2) return s;
+    int dp[size][size];
+    int left = 0,right = 0,len = 0;
+    for (int i=0;i<size;i++) {
+        for (int j = 0;j<i;j++) {
+            dp[j][i] = (s[j]==s[i] && (i-j<2||dp[j+1][i-1]));
+            if (dp[j][i] && len < i-j+1) {
+                len=i-j+1;
+                left=j;
+                right=i;
+            }
+        }
+        dp[i][i] = 1;
+    }
+    return s.substr(left,right-left+1);
 }
 ```
 

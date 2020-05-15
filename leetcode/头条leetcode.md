@@ -5,6 +5,7 @@
 * <a href="#3. 无重复字符的最长子串">3. 无重复字符的最长子串</a>
 * <a href="#5. 最长回文子串">5. 最长回文子串</a>
 * <a href="#15. 三数之和">15. 三数之和</a>
+* <a href="#21. 合并两个有序链表">21. 合并两个有序链表</a>
 * <a href="#42. 接雨水">42. 接雨水</a>
 * <a href="#321. 拼接最大数">321. 拼接最大数</a>
 * <a href="#1101. 彼此熟识的最早时间">1101. 彼此熟识的最早时间</a>
@@ -245,6 +246,40 @@ vector<vector<int>> threeSum(vector<int>& nums) {
         }
         return res;
     }
+```
+
+<a id="21. 合并两个有序链表"></a>
+
+### 21. 合并两个有序链表
+
+将两个升序链表合并为一个新的升序链表并返回。新链表是通过拼接给定的两个链表的所有节点组成的。 
+
+```
+输入：1->2->4, 1->3->4
+输出：1->1->2->3->4->4
+```
+
+解:
+
+```cpp
+ListNode* mergeTwoLists(ListNode* l1, ListNode* l2) {
+    ListNode *dummy = new ListNode(-1), *cur = dummy;
+    while (l1 && l2) {
+        if (l1->val < l2->val) {
+            cur->next = l1;
+            l1 = l1->next;
+        }else {
+            cur->next = l2;
+            l2 = l2->next;
+        }
+        cur = cur->next;
+    }
+    cur->next = l1?l1:l2;
+    ListNode *res = dummy->next;
+    delete dummy;
+    dummy = NULL;
+    return res;
+}
 ```
 
 <a id="42. 接雨水"></a>

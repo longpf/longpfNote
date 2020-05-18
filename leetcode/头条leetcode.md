@@ -3,10 +3,12 @@
 * <a href="#1. 两数之和">1. 两数之和</a>
 * <a href="#2. 两数相加">2. 两数相加</a>
 * <a href="#3. 无重复字符的最长子串">3. 无重复字符的最长子串</a>
+* <a href="#4. 寻找两个正序数组的中位数">4. 寻找两个正序数组的中位数</a>
 * <a href="#5. 最长回文子串">5. 最长回文子串</a>
 * <a href="#15. 三数之和">15. 三数之和</a>
 * <a href="#21. 合并两个有序链表">21. 合并两个有序链表</a>
 * <a href="#42. 接雨水">42. 接雨水</a>
+* <a href="#53. 最大子序和">53. 最大子序和</a>
 * <a href="#321. 拼接最大数">321. 拼接最大数</a>
 * <a href="#1101. 彼此熟识的最早时间">1101. 彼此熟识的最早时间</a>
 
@@ -134,6 +136,68 @@ int lengthOfLongestSubstring(string s) {
     return res;
 }
 ```
+
+<a id="4. 寻找两个正序数组的中位数"></a>
+### 4. 寻找两个正序数组的中位数
+
+给定两个大小为 m 和 n 的正序（从小到大）数组 nums1 和 nums2。
+
+请你找出这两个正序数组的中位数，并且要求算法的时间复杂度为 O(log(m + n))。
+
+你可以假设 nums1 和 nums2 不会同时为空。
+
+```
+nums1 = [1, 3]
+nums2 = [2]
+则中位数是 2.0
+
+nums1 = [1, 2]
+nums2 = [3, 4]
+则中位数是 (2 + 3)/2 = 2.5
+```
+
+**hard 困难**
+
+```cpp
+// 折半删除
+double findMedianSortedArrays(vector<int>& nums1, vector<int>& nums2) {
+    int m = nums1.size(), n = nums2.size();
+    int k = (m+n)/2;
+    if ((m+n)%2==0){
+        return (findKth(nums1,nums2,0,0,m,n,k)+findKth(nums1,nums2,0,0,m,n,k+1))/2.0;
+    } else {
+        return findKth(nums1,nums2,0,0,m,n,k+1);
+    }
+}
+    
+double findKth(vector<int> &arr1,vector<int> &arr2,int start1,int start2,int len1,int len2,int k){
+    // 保证数组1的长度小于数组2
+    if (len1 > len2) {
+        return findKth(arr2,arr1,start2,start1,len2,len1,k);
+    }
+    if (len1==0) {
+        return arr2[start2+k-1];
+    }
+    if (k==1) {
+        return min(arr1[start1],arr2[start2]);
+    }
+    // 防止越界, nums1=[1]  nums2=[2,3,4,5,6]
+    int p1 = min(k/2,len1);
+    int p2 = k-p1;
+    if (arr1[start1+p1-1] < arr2[start2+p2-1]) {
+        // arr1的前p1个元素不在搜索范围内
+        return findKth(arr1,arr2,start1+p1,start2,len1-p1,len2,k-p1);
+    }
+    else if (arr1[start1+p1-1] > arr2[start2+p2-1]) {
+        return findKth(arr1,arr2,start1,start2+p2,len1,len2-p2,k-p2);
+    }
+    else {
+        // 相等说明找到第k个元素
+        return arr1[start1+p1-1];
+    }
+}
+```
+
 
 <a id="5. 最长回文子串"></a>
 ### 5. 最长回文子串
@@ -329,6 +393,29 @@ int trap(vector<int>& height) {
         }
     }
     return water;
+}
+```
+
+<a id="53. 最大子序和"></a>
+### 53. 最大子序和
+
+给定一个整数数组 nums ，找到一个具有最大和的连续子数组（子数组最少包含一个元素），返回其最大和。
+
+```cpp
+int maxSubArray(vector<int>& nums) {
+    int size = (int)nums.size();
+    int max = INT_MIN, sum = 0;
+    for (int i=0;i<size;i++) {
+        if (sum <= 0) {
+            sum = nums[i];
+        } else {
+            sum += nums[i];
+        }
+        if(sum > max) {
+            max = sum;
+        }
+    }
+    return max;
 }
 ```
 

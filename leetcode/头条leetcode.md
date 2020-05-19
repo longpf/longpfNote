@@ -6,6 +6,7 @@
 * <a href="#4. 寻找两个正序数组的中位数">4. 寻找两个正序数组的中位数</a>
 * <a href="#5. 最长回文子串">5. 最长回文子串</a>
 * <a href="#15. 三数之和">15. 三数之和</a>
+* <a href="#20. 有效的括号">20. 有效的括号</a>
 * <a href="#21. 合并两个有序链表">21. 合并两个有序链表</a>
 * <a href="#42. 接雨水">42. 接雨水</a>
 * <a href="#53. 最大子序和">53. 最大子序和</a>
@@ -311,6 +312,31 @@ vector<vector<int>> threeSum(vector<int>& nums) {
         }
         return res;
     }
+```
+
+<a id="20. 有效的括号"></a>
+### 20. 有效的括号
+
+给定一个只包括 '('，')'，'{'，'}'，'['，']' 的字符串，判断字符串是否有效。
+
+```cpp
+bool isValid(string s) {
+    stack<char> st{};
+    for (int i=0;i<s.length();i++) {
+        char c= s[i];
+        if (c=='('||c=='['||c=='{') {
+            st.push(c);
+        }
+        else {
+            if (st.empty()) return false;
+            if (c==')'&&st.top()!='(') return false;
+            if (c==']'&&st.top()!='[') return false;
+            if (c=='}'&&st.top()!='{') return false;
+            st.pop();
+        }
+    }
+    return st.empty();
+}
 ```
 
 <a id="21. 合并两个有序链表"></a>

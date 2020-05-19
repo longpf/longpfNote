@@ -9,6 +9,7 @@
 * <a href="#21. 合并两个有序链表">21. 合并两个有序链表</a>
 * <a href="#42. 接雨水">42. 接雨水</a>
 * <a href="#53. 最大子序和">53. 最大子序和</a>
+* <a href="#146. LRU缓存机制">146. LRU缓存机制</a>
 * <a href="#321. 拼接最大数">321. 拼接最大数</a>
 * <a href="#1101. 彼此熟识的最早时间">1101. 彼此熟识的最早时间</a>
 
@@ -417,6 +418,46 @@ int maxSubArray(vector<int>& nums) {
     }
     return max;
 }
+```
+
+<a id="146. LRU缓存机制"></a>
+### 146. LRU缓存机制
+
+运用你所掌握的数据结构，设计和实现一个  LRU (最近最少使用) 缓存机制。它应该支持以下操作： 获取数据 get 和 写入数据 put 。
+
+```cpp
+class LRUCache {
+private:
+    int cap;
+    list<pair<int,int>> l;
+    unordered_map<int,list<pair<int,int>>::iterator> m;
+public:
+    LRUCache(int capacity) {
+        cap = capacity;
+    }
+    
+    int get(int key) {
+        auto it = m.find(key);
+        if (it == m.end()) return -1;
+        l.splice(l.begin(),l,it->second);
+        m[key] = l.begin();
+        return it->second->second;
+    }
+    
+    void put(int key, int value) {
+        auto it = m.find(key);
+        if (it != m.end()) {
+            l.erase(it->second);
+        }
+        l.push_front(make_pair(key,value));
+        m[key] = l.begin();
+        if (m.size() > cap) {
+            int k = l.rbegin()->first;
+            l.pop_back();
+            m.erase(k);
+        }
+    }
+};
 ```
 
 <a id="321. 拼接最大数"></a>

@@ -11,6 +11,7 @@
 * <a href="#42. 接雨水">42. 接雨水</a>
 * <a href="#53. 最大子序和">53. 最大子序和</a>
 * <a href="#146. LRU缓存机制">146. LRU缓存机制</a>
+* <a href="#206. 反转链表">206. 反转链表</a>
 * <a href="#321. 拼接最大数">321. 拼接最大数</a>
 * <a href="#1101. 彼此熟识的最早时间">1101. 彼此熟识的最早时间</a>
 
@@ -484,6 +485,27 @@ public:
         }
     }
 };
+```
+
+<a id="206. 反转链表"></a>
+### 206. 反转链表
+
+反转一个单链表。
+
+```cpp
+ListNode* reverseList(ListNode* head) {
+    if (!head) return NULL;
+    ListNode *p = head;
+    ListNode *pre = NULL;
+    ListNode *n = NULL;
+    while (p) {
+        n = p->next;
+        p->next = pre;
+        pre = p;
+        p = n;
+    }
+    return pre;
+}
 ```
 
 <a id="321. 拼接最大数"></a>

@@ -5,6 +5,8 @@
 * <a href="#3. 无重复字符的最长子串">3. 无重复字符的最长子串</a>
 * <a href="#4. 寻找两个正序数组的中位数">4. 寻找两个正序数组的中位数</a>
 * <a href="#5. 最长回文子串">5. 最长回文子串</a>
+* <a href="#7. 整数反转">7. 整数反转</a>
+* <a href="#11. 盛最多水的容器">11. 盛最多水的容器</a>
 * <a href="#15. 三数之和">15. 三数之和</a>
 * <a href="#20. 有效的括号">20. 有效的括号</a>
 * <a href="#21. 合并两个有序链表">21. 合并两个有序链表</a>
@@ -201,7 +203,6 @@ double findKth(vector<int> &arr1,vector<int> &arr2,int start1,int start2,int len
 }
 ```
 
-
 <a id="5. 最长回文子串"></a>
 ### 5. 最长回文子串
 
@@ -277,6 +278,44 @@ string longestPalindrome(string s) {
 }
 ```
 
+
+<a id="7. 整数反转"></a>
+### 7. 整数反转
+
+```cpp
+int reverse(int x) {
+    long long res = 0;
+    while (x != 0) {
+        res = res * 10 + x % 10;
+        x /= 10;
+    }
+    if (res < INT_MIN || res > INT_MAX) {
+        return 0;
+    }
+    return  res;
+}
+```
+
+<a id="11. 盛最多水的容器"></a>
+### 11. 盛最多水的容器
+
+给你 n 个非负整数 a1，a2，...，an，每个数代表坐标中的一个点 (i, ai) 。在坐标内画 n 条垂直线，垂直线 i 的两个端点分别为 (i, ai) 和 (i, 0)。找出其中的两条线，使得它们与 x 轴共同构成的容器可以容纳最多的水。
+
+```cpp
+int maxArea(vector<int>& height) {
+    int size = (int)height.size();
+    int res = 0;
+    int i = 0, j = size - 1;
+    while (i < j) {
+        int h = min(height[j],height[i]);
+        int water = (j-i)*h;
+        res = max(res,water);
+        while (i<j && height[i]==h) i++;
+        while (i<j && height[j]==h) j--;
+    }
+    return res;
+}
+```
 
 <a id="15. 三数之和"></a>
 ### 15. 三数之和

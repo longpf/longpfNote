@@ -14,6 +14,7 @@
 * <a href="#46. 全排列">46. 全排列</a>
 * <a href="#53. 最大子序和">53. 最大子序和</a>
 * <a href="#93. 复原IP地址">93. 复原IP地址</a>
+* <a href="#141. 环形链表">141. 环形链表</a>
 * <a href="#146. LRU缓存机制">146. LRU缓存机制</a>
 * <a href="#206. 反转链表">206. 反转链表</a>
 * <a href="#321. 拼接最大数">321. 拼接最大数</a>
@@ -568,6 +569,28 @@ public:
 };
 ```
 
+<a id="141. 环形链表"></a>
+### 141. 环形链表
+
+给定一个链表，判断链表中是否有环。
+
+为了表示给定链表中的环，我们使用整数 pos 来表示链表尾连接到链表中的位置（索引从 0 开始）。 如果 pos 是 -1，则在该链表中没有环
+
+```cpp
+bool hasCycle(ListNode *head) {
+    if (!head) return false;
+    ListNode *fast = head, *slow = head;
+    fast = fast->next;
+    if (fast) fast = fast->next;
+    while(fast && fast!=slow) {
+        slow = slow->next;
+        fast = fast->next;
+        if (fast) fast = fast->next;
+    }
+    if (fast!=slow) return false;
+    return true;
+}
+```
 
 <a id="146. LRU缓存机制"></a>
 ### 146. LRU缓存机制

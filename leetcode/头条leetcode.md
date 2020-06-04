@@ -11,6 +11,7 @@
 * <a href="#20. 有效的括号">20. 有效的括号</a>
 * <a href="#21. 合并两个有序链表">21. 合并两个有序链表</a>
 * <a href="#42. 接雨水">42. 接雨水</a>
+* <a href="#46. 全排列">46. 全排列</a>
 * <a href="#53. 最大子序和">53. 最大子序和</a>
 * <a href="#93. 复原IP地址">93. 复原IP地址</a>
 * <a href="#146. LRU缓存机制">146. LRU缓存机制</a>
@@ -461,6 +462,49 @@ int trap(vector<int>& height) {
         }
     }
     return water;
+}
+```
+
+<a id="46. 全排列"></a>
+### 46. 全排列
+
+给定一个 没有重复 数字的序列，返回其所有可能的全排列
+
+```
+输入: [1,2,3]
+输出:
+[
+  [1,2,3],
+  [1,3,2],
+  [2,1,3],
+  [2,3,1],
+  [3,1,2],
+  [3,2,1]
+]
+```
+
+```cpp
+vector<vector<int>> permute(vector<int>& nums) {
+    vector<vector<int>> res{};
+    if (nums.size()==0) return res;
+    sort(nums.begin(),nums.end());
+    permuteCore(res,nums,0,nums.size());
+    return res;
+}
+
+void permuteCore(vector<vector<int>> &res,vector<int> &nums,int k,int n) {
+    if (k == n) {
+        res.push_back(nums);
+        return ;
+    }
+    for (int i = k;i < n; i ++ ) {
+        if (nums[i]==nums[k] && i != k) {
+            continue;
+        }
+        swap(nums[i],nums[k]);
+        permuteCore(res,nums,k+1,n);
+        swap(nums[i],nums[k]);
+    }
 }
 ```
 

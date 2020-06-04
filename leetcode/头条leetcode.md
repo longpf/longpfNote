@@ -12,6 +12,7 @@
 * <a href="#21. 合并两个有序链表">21. 合并两个有序链表</a>
 * <a href="#42. 接雨水">42. 接雨水</a>
 * <a href="#53. 最大子序和">53. 最大子序和</a>
+* <a href="#93. 复原IP地址">93. 复原IP地址</a>
 * <a href="#146. LRU缓存机制">146. LRU缓存机制</a>
 * <a href="#206. 反转链表">206. 反转链表</a>
 * <a href="#321. 拼接最大数">321. 拼接最大数</a>
@@ -485,6 +486,44 @@ int maxSubArray(vector<int>& nums) {
     return max;
 }
 ```
+
+<a id="93. 复原IP地址"></a>
+### 93. 复原IP地址
+
+给定一个只包含数字的字符串，复原它并返回所有可能的 IP 地址格式。
+
+有效的 IP 地址正好由四个整数（每个整数位于 0 到 255 之间组成），整数之间用 '.' 分隔。
+
+```
+输入: "25525511135"
+输出: ["255.255.11.135", "255.255.111.35"]
+```
+
+```cpp
+class Solution {
+    vector<string> res;
+public:
+    vector<string> restoreIpAddresses(string s) {
+        string ip = "";
+        dfs(s,0,ip);
+        return res;
+    }
+    void dfs(string s,int n,string ip) {
+        if (n == 4) {
+            if (s.empty()) res.push_back(ip);
+        } else {
+            for (int k = 1; k < 4;k++) {
+                if (s.size() < k) break;
+                int val = stoi(s.substr(0,k));
+                // 大于255 或 以0开始 剪枝
+                if (val > 255 || to_string(val).size() != k) continue;
+                dfs(s.substr(k),n+1,ip+s.substr(0,k)+(n==3?"":"."));
+            }
+        }
+    }
+};
+```
+
 
 <a id="146. LRU缓存机制"></a>
 ### 146. LRU缓存机制

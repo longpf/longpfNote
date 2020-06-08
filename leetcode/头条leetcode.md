@@ -19,6 +19,8 @@
 * <a href="#206. 反转链表">206. 反转链表</a>
 * <a href="#321. 拼接最大数">321. 拼接最大数</a>
 * <a href="#1101. 彼此熟识的最早时间">1101. 彼此熟识的最早时间</a>
+* <a href="#199. 二叉树的右视图">199. 二叉树的右视图</a>
+
 
 
 
@@ -796,4 +798,74 @@ private:
         return record[x] == x ? x : record[x] = find(record[x]);
     }
 };
+```
+
+<a id="199. 二叉树的右视图"></a>
+### 199. 二叉树的右视图
+
+给定一棵二叉树，想象自己站在它的右侧，按照从顶部到底部的顺序，返回从右侧所能看到的节点值。
+
+```
+输入: [1,2,3,null,5,null,4]
+输出: [1, 3, 4]
+解释:
+
+   1            <---
+ /   \
+2     3         <---
+ \     \
+  5     4       <---
+```
+
+```cpp
+vector<int> rightSideView(TreeNode* root) {
+    vector<int> res{};
+    if (!root) return res;
+    queue<TreeNode *> q{};
+    q.push(root);
+    while (!q.empty()) {
+        int size = q.size();
+        for (int i=0;i<size;i++) {
+            TreeNode *n = q.front();
+            q.pop();
+            if (i == size-1) {
+                res.push_back(n->val);
+            }
+            if (n->left) {
+                q.push(n->left);
+            }
+            if (n->right) {
+                q.push(n->right);
+            }
+        }
+    }       
+    return res;
+}
+
+//bfs
+vector<int> rightSideView(TreeNode* root) {
+    vector<int> res{};
+    if (!root) return res;
+    queue<TreeNode *> q{};
+    q.push(root);
+    TreeNode *last = root;
+    TreeNode *nlast = NULL;
+    while (!q.empty()) {
+        TreeNode *n = q.front();
+        q.pop();
+        if (n->left) {
+            q.push(n->left);
+            nlast = n->left;
+        }
+        if (n->right) {
+            q.push(n->right);
+            nlast = n->right;
+        }
+        if (n == last) {
+            res.push_back(n->val);
+            last = nlast;
+        }
+    }       
+    return res;
+}
 ```

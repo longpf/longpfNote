@@ -21,6 +21,8 @@
 * <a href="#1101. 彼此熟识的最早时间">1101. 彼此熟识的最早时间</a>
 * <a href="#199. 二叉树的右视图">199. 二叉树的右视图</a>
 * <a href="#25. K 个一组翻转链表">25. K 个一组翻转链表</a>
+* <a href="#9. 回文数">9. 回文数</a>
+* <a href="#31. 下一个排列">31. 下一个排列</a>
 
 
 
@@ -923,5 +925,79 @@ ListNode *reverse(ListNode *head) {
         head = n;
     }
     return pre;
+}
+```
+
+<a id="9. 回文数"></a>
+### 9. 回文数
+
+判断一个整数是否是回文数。回文数是指正序（从左向右）和倒序（从右向左）读都是一样的整数。
+
+```
+输入: 121
+输出: true
+
+输入: -121
+输出: false
+解释: 从左向右读, 为 -121 。 从右向左读, 为 121- 。因此它不是一个回文数。
+```
+
+```cpp
+bool isPalindrome(int x) {
+    if (x < 0) return false;
+    int n1 = x;
+    long n2 = 0;
+    while (n1 > 0) {
+        n2 = (n2*10)+(n1%10);
+        n1 /= 10;
+    }
+    return x == n2;
+}
+//解法2
+bool isPalindrome(int x) {
+    if (x<0) return false;
+    int div = 1;
+    while (x / div >= 10) div *= 10;
+    while (x > 0)
+    {
+        int left = x / div;
+        int right = x % 10;
+        if (left != right) return false;
+        //更新x
+        x = (x % div) / 10;
+        //更新div
+        div /= 100;
+    }
+    //如果为0的话
+    return true;
+}
+```
+
+<a id="31. 下一个排列"></a>
+
+### 31. 下一个排列
+
+实现获取下一个排列的函数，算法需要将给定数字序列重新排列成字典序中下一个更大的排列。
+
+如果不存在下一个更大的排列，则将数字重新排列成最小的排列（即升序排列）。
+
+[http://blog.longpengfei.com/post/31-next-permutation-%E4%B8%8B%E4%B8%80%E4%B8%AA%E6%8E%92%E5%88%97/](http://blog.longpengfei.com/post/31-next-permutation-%E4%B8%8B%E4%B8%80%E4%B8%AA%E6%8E%92%E5%88%97/)
+
+```
+1 2 7 4 3 1  ->  1 3 1 2 4 7
+1,2,3 → 1,3,2
+3,2,1 → 1,2,3
+1,1,5 → 1,5,1
+```
+
+```cpp
+void nextPermutation(vector<int>& nums) {
+    int n = nums.size(),i = n - 2, j = n - 1;
+    while (i >= 0 && nums[i]>=nums[i+1]) --i;
+    if (i >= 0) {
+        while (nums[j]<=nums[i]) j--;
+        swap(nums[i],nums[j]);
+    }
+    reverse(nums.begin()+i+1,nums.end());
 }
 ```

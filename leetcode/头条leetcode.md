@@ -23,6 +23,10 @@
 * <a href="#25. K 个一组翻转链表">25. K 个一组翻转链表</a>
 * <a href="#9. 回文数">9. 回文数</a>
 * <a href="#31. 下一个排列">31. 下一个排列</a>
+* <a href="#200. 岛屿数量">200. 岛屿数量</a>
+* <a href="#56. 合并区间">56. 合并区间</a>
+* <a href="#70. 爬楼梯">70. 爬楼梯</a>
+* <a href="#121. 买卖股票的最佳时机">121. 买卖股票的最佳时机</a>
 
 
 
@@ -999,5 +1003,154 @@ void nextPermutation(vector<int>& nums) {
         swap(nums[i],nums[j]);
     }
     reverse(nums.begin()+i+1,nums.end());
+}
+```
+
+<a id="200. 岛屿数量"></a>
+### 200. 岛屿数量
+
+给你一个由 '1'（陆地）和 '0'（水）组成的的二维网格，请你计算网格中岛屿的数量。
+
+岛屿总是被水包围，并且每座岛屿只能由水平方向或竖直方向上相邻的陆地连接形成。
+
+此外，你可以假设该网格的四条边均被水包围。
+
+```
+输入:
+[
+['1','1','1','1','0'],
+['1','1','0','1','0'],
+['1','1','0','0','0'],
+['0','0','0','0','0']
+]
+输出: 1
+
+输入:
+[
+['1','1','0','0','0'],
+['1','1','0','0','0'],
+['0','0','1','0','0'],
+['0','0','0','1','1']
+]
+输出: 3
+解释: 每座岛屿只能由水平和/或竖直方向上相邻的陆地连接而成。
+```
+
+```cpp
+void dfs(vector<vector<char>> &grid,int r, int c){
+    int rows = grid.size();
+    int cols = grid[0].size();
+    grid[r][c] = '0';
+    if (r-1>=0 && grid[r-1][c] == '1') dfs(grid,r-1,c);
+    if (r+1<rows && grid[r+1][c] == '1') dfs(grid,r+1,c);
+    if (c-1>=0 && grid[r][c-1] == '1') dfs(grid,r,c-1);
+    if (c+1<cols && grid[r][c+1] == '1') dfs(grid,r,c+1);
+}
+int numIslands(vector<vector<char>>& grid) {
+    int rows = grid.size();
+    if (!rows) return 0;
+    int cols = grid[0].size();
+    int res = 0;
+    for (int r = 0;r < rows;r++) {
+        for (int c = 0;c < cols;c++) {
+            if (grid[r][c] == '1') {
+                res++;
+                dfs(grid,r,c);
+            }
+        }
+    }
+    return res;
+}
+```
+
+<a id="56. 合并区间"></a>
+### 56. 合并区间
+
+给出一个区间的集合，请合并所有重叠的区间。
+
+```
+输入: [[1,3],[2,6],[8,10],[15,18]]
+输出: [[1,6],[8,10],[15,18]]
+解释: 区间 [1,3] 和 [2,6] 重叠, 将它们合并为 [1,6].
+
+输入: [[1,4],[4,5]]
+输出: [[1,5]]
+解释: 区间 [1,4] 和 [4,5] 可被视为重叠区间。
+```
+
+```cpp
+vector<vector<int>> merge(vector<vector<int>>& intervals) {
+    vector<vector<int>> res{};
+    if (intervals.size()==0) return res;
+    sort(intervals.begin(),intervals.end());
+    vector<int> vec = intervals[0];
+    for (int i = 1;i < intervals.size();i++){
+        vector<int> v = intervals[i];
+        if (v[0] <= vec[1]) {
+            vec[1] = max(vec[1],v[1]);
+        } else {
+            res.push_back(vec);
+            vec = v;
+        }
+    }
+    res.push_back(vec);
+    return res;
+}
+```
+
+<a id="70. 爬楼梯"></a>
+### 70. 爬楼梯
+
+假设你正在爬楼梯。需要 n 阶你才能到达楼顶。
+
+每次你可以爬 1 或 2 个台阶。你有多少种不同的方法可以爬到楼顶呢？
+
+斐波那契,f(n)=f(n-1)+f(n-2)
+
+```cpp
+int climbStairs(int n) {
+    if (n < 3) return n;
+    int a = 1, b = 2;
+    int c = 0;
+    for (int i = 3; i <= n;i++){
+        c = a+b;
+        a = b;
+        b = c;
+    }
+    return c;
+}
+```
+
+<a id="121. 买卖股票的最佳时机"></a>
+### 121. 买卖股票的最佳时机
+
+给定一个数组，它的第 i 个元素是一支给定股票第 i 天的价格。
+
+如果你最多只允许完成一笔交易（即买入和卖出一支股票一次），设计一个算法来计算你所能获取的最大利润。
+
+注意：你不能在买入股票前卖出股票。
+
+```
+输入: [7,1,5,3,6,4]
+输出: 5
+解释: 在第 2 天（股票价格 = 1）的时候买入，在第 5 天（股票价格 = 6）的时候卖出，最大利润 = 6-1 = 5 。
+     注意利润不能是 7-1 = 6, 因为卖出价格需要大于买入价格；同时，你不能在买入前卖出股票。
+
+输入: [7,6,4,3,1]
+输出: 0
+解释: 在这种情况下, 没有交易完成, 所以最大利润为 0。
+```
+
+```cpp
+int maxProfit(vector<int>& prices) {
+    int res = 0;
+    if (prices.size() < 2) return res;
+    int minPrice = prices[0];
+    for (int i=1;i<prices.size();i++) {
+        int price = prices[i];
+        res = max(res,price-minPrice);
+        minPrice = min(minPrice,price);
+    }
+    return res;
 }
 ```

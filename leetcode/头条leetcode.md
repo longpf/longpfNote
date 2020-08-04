@@ -27,6 +27,9 @@
 * <a href="#56. 合并区间">56. 合并区间</a>
 * <a href="#70. 爬楼梯">70. 爬楼梯</a>
 * <a href="#121. 买卖股票的最佳时机">121. 买卖股票的最佳时机</a>
+* <a href="#33. 搜索旋转排序数组">33. 搜索旋转排序数组</a>
+* <a href="#62. 不同路径">62. 不同路径</a>
+
 
 
 
@@ -1153,4 +1156,117 @@ int maxProfit(vector<int>& prices) {
     }
     return res;
 }
+```
+
+<a id="33. 搜索旋转排序数组"></a>
+### 33. 搜索旋转排序数组
+
+假设按照升序排序的数组在预先未知的某个点上进行了旋转。
+
+( 例如，数组 [0,1,2,4,5,6,7] 可能变为 [4,5,6,7,0,1,2] )。
+
+搜索一个给定的目标值，如果数组中存在这个目标值，则返回它的索引，否则返回 -1 。
+
+你可以假设数组中不存在重复的元素。
+
+你的算法时间复杂度必须是 O(log n) 级别
+
+```
+输入: nums = [4,5,6,7,0,1,2], target = 0
+输出: 4
+
+输入: nums = [4,5,6,7,0,1,2], target = 3
+输出: -1
+```
+
+```cpp
+int search(vector<int>& nums, int target) {
+    int n = nums.size();
+    int i = 0,j = n-1;
+    while(i <= j) {
+        int mid = (i+j)/2;
+        if (nums[mid] == target) return mid;
+        else if (nums[mid] < nums[j]) {
+            if (nums[mid] < target && nums[j] >= target) {
+                i = mid + 1;
+            } else {
+                j = mid - 1;
+            }
+        }
+        else {
+            if (nums[i] <= target && nums[mid] > target) {
+                j = mid - 1;
+            } else {
+                i = mid + 1;
+            }
+        }
+    }
+    return -1;
+}
+```
+
+<a id="62. 不同路径"></a>
+### 62. 不同路径
+
+一个机器人位于一个 m x n 网格的左上角 （起始点在下图中标记为“Start” ）。
+
+机器人每次只能向下或者向右移动一步。机器人试图达到网格的右下角（在下图中标记为“Finish”）。
+
+问总共有多少条不同的路径？
+
+![](../leetcode_pic/robot_maze.png)
+
+```
+输入: m = 3, n = 2
+输出: 3
+解释:
+从左上角开始，总共有 3 条路径可以到达右下角。
+1. 向右 -> 向右 -> 向下
+2. 向右 -> 向下 -> 向右
+3. 向下 -> 向右 -> 向右
+
+输入: m = 7, n = 3
+输出: 28
+```
+
+![动态规划](../leetcode_pic/robot_maze_sol.png)
+
+```cpp
+// 回溯法 时间过长通不过
+void dfs(int m,int n,int r,int c,int &res) {
+    if (r == m-1 && c == n-1) {
+        res ++;
+        return;
+    }
+    if (r < m-1) dfs(m,n,r+1,c,res);
+    if (c < n-1) dfs(m,n,r,c+1,res);
+}
+int uniquePaths(int m, int n) {
+    int res = 0;
+    dfs(m,n,0,0,res);
+    return res;
+}
+// 动态规划
+int uniquePaths(int m, int n) {
+     vector<vector<int>> dp(m, vector<int>(n, 0));
+     for(int i = 0; i < m; ++i){
+         for(int j = 0; j < n; ++j){
+             dp[i][i] = (i > 0 && j >0 ) ? dp[i][j] = dp[i][j-1] + dp[i-1][j] : 1;
+         }
+     }
+     return dp[m-1][n-1];
+ }
+//优化
+class Solution {
+public:
+    int uniquePaths(int m, int n) {
+        vector<int> dp(n, 0);
+        for(int i = 0; i < m; ++i){
+            for(int j = 0; j < n; ++j){
+                dp[j] = (i > 0 && j >0 ) ? dp[j] = dp[j-1] + dp[j] : 1;
+            }
+        }
+        return dp[n-1];
+    }
+};
 ```

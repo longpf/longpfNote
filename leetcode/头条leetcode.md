@@ -1214,7 +1214,7 @@ int search(vector<int>& nums, int target) {
 
 问总共有多少条不同的路径？
 
-![](../leetcode_pic/robot_maze.png)
+![](https://raw.githubusercontent.com/longpf/longpfNote/master/leetcode_pic/robot_maze.png?token=AB5FFV4I4O76ZD2V7UGTEZ27FESX6)
 
 ```
 输入: m = 3, n = 2
@@ -1229,7 +1229,7 @@ int search(vector<int>& nums, int target) {
 输出: 28
 ```
 
-![动态规划](../leetcode_pic/robot_maze_sol.png)
+![动态规划](https://raw.githubusercontent.com/longpf/longpfNote/master/leetcode_pic/robot_maze_sol.png?token=AB5FFV6OQOSU44LXIZ23W327FETSC)
 
 ```cpp
 // 回溯法 时间过长通不过

@@ -29,7 +29,7 @@
 * <a href="#121. 买卖股票的最佳时机">121. 买卖股票的最佳时机</a>
 * <a href="#33. 搜索旋转排序数组">33. 搜索旋转排序数组</a>
 * <a href="#62. 不同路径">62. 不同路径</a>
-
+* <a href="#92. 反转链表 II">92. 反转链表 II</a>
 
 
 
@@ -1214,7 +1214,7 @@ int search(vector<int>& nums, int target) {
 
 问总共有多少条不同的路径？
 
-![](https://raw.githubusercontent.com/longpf/longpfNote/master/leetcode_pic/robot_maze.png?token=AB5FFV4I4O76ZD2V7UGTEZ27FESX6)
+![](https://raw.githubusercontent.com/longpf/longpfNote/master/leetcode_pic/robot_maze.png?token=AB5FFV65JHN54ZJWOQBTKK27MHPO2)
 
 ```
 输入: m = 3, n = 2
@@ -1229,7 +1229,7 @@ int search(vector<int>& nums, int target) {
 输出: 28
 ```
 
-![动态规划](https://raw.githubusercontent.com/longpf/longpfNote/master/leetcode_pic/robot_maze_sol.png?token=AB5FFV6OQOSU44LXIZ23W327FETSC)
+![动态规划](https://raw.githubusercontent.com/longpf/longpfNote/master/leetcode_pic/robot_maze_sol.png?token=AB5FFVYZK3ZJHMVQXS3M43S7MHPVQ)
 
 ```cpp
 // 回溯法 时间过长通不过
@@ -1269,4 +1269,44 @@ public:
         return dp[n-1];
     }
 };
+```
+
+<a id="92. 反转链表 II"></a>
+### 92. 反转链表 II
+
+反转从位置 m 到 n 的链表。请使用一趟扫描完成反转。
+
+说明:
+1 ≤ m ≤ n ≤ 链表长度。
+
+```
+输入: 1->2->3->4->5->NULL, m = 2, n = 4
+输出: 1->4->3->2->5->NULL
+```
+
+```cpp
+ListNode* reverseBetween(ListNode* head, int m, int n) {
+    ListNode *pre = NULL, *cur = head;
+    while (m>1) {
+        pre = cur;
+        cur = cur->next;
+        m--;
+        n--;
+    }
+    ListNode *con = pre,*tail = cur, *third = NULL;
+    while (n > 0) {
+        third = cur->next;
+        cur->next = pre;
+        pre = cur;
+        cur = third;
+        n--;
+    }
+    if (con) {
+        con->next = pre;
+    } else {
+        head = pre;
+    }
+    tail->next = cur;
+    return head;
+}
 ```

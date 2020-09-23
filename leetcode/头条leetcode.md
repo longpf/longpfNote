@@ -1310,3 +1310,83 @@ ListNode* reverseBetween(ListNode* head, int m, int n) {
     return head;
 }
 ```
+
+
+### 165. 比较版本号
+
+比较两个版本号 version1 和 version2。
+如果 version1 > version2 返回 1，如果 version1 < version2 返回 -1， 除此之外返回 0。
+
+```
+输入: version1 = "0.1", version2 = "1.1"
+输出: -1
+
+输入: version1 = "1.0.1", version2 = "1"
+输出: 1
+
+输入: version1 = "7.5.2.4", version2 = "7.5.3"
+输出: -1
+
+输入：version1 = "1.01", version2 = "1.001"
+输出：0
+解释：忽略前导零，“01” 和 “001” 表示相同的数字 “1”。
+
+输入：version1 = "1.0", version2 = "1.0.0"
+输出：0
+解释：version1 没有第三级修订号，这意味着它的第三级修订号默认为 “0”。
+```
+
+```cpp
+int compareVersion(string version1, string version2) {
+    int i = 0,j = 0;
+    while (i < version1.size()||j<version2.size()) {
+        int x=i,y=j;
+        while(x<version1.size()&&version1[x]!='.') x++;
+        while(y<version2.size()&&version2[y]!='.') y++;
+        int a = (i==x)?0:stoi(version1.substr(i,x-i));
+        int b = (j==y)?0:stoi(version2.substr(j,y-j));
+        if (a>b) {
+            return 1;
+        } else if (a<b){
+            return -1;
+        } else {
+            i = x+1;
+            j = y+1;
+        }
+    }
+    return 0;
+}
+
+int compareVersion(string version1, string version2) {
+    vector<int> v1{};
+    vector<int> v2{};
+    string str;
+    istringstream is(version1);
+    while (getline(is, str, '.')) {
+        v1.push_back(stoi(str));
+    }
+    istringstream is2(version2);
+    while (getline(is2, str, '.')) {
+        v2.push_back(stoi(str));
+    }
+    int i = 0;
+    for (; i<min(v1.size(),v2.size());) {
+        if (v1[i]==v2[i]) {
+            i++;
+        } else if(v1[i] > v2[i]){
+            return 1;
+        } else {
+            return -1;
+        }
+    }
+    int j = i;
+    while (j < v1.size()) {
+        if (v1[j++] != 0) return 1;
+    }
+    j = i;
+    while (j < v2.size()) {
+        if (v2[j++] != 0) return -1;
+    }
+    return 0;
+}
+```

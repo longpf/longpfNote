@@ -30,7 +30,7 @@
 * <a href="#33. 搜索旋转排序数组">33. 搜索旋转排序数组</a>
 * <a href="#62. 不同路径">62. 不同路径</a>
 * <a href="#92. 反转链表 II">92. 反转链表 II</a>
-
+* <>
 
 
 <a id="1. 两数之和"></a>
@@ -144,7 +144,7 @@ int lengthOfLongestSubstring(string s) {
     int res = 0,left = 0; // left滑动窗口左侧
     for (int i=0;i<s.size();i++) {
         char c = s[i];
-        // left>m[c], 说明在left到i之间没有字符c
+        // left>m[c], 说明在left到i之间没有字符c,如果存在c,则left比m[c]小
         if (m[c]==0 || left > m[c]) {
             res = max(res,i-left+1);
         }else {
@@ -775,6 +775,8 @@ vector<int> maxKsequence(vector<int> v,int k) {
 
 medium  
 
+并查集: [https://zhuanlan.zhihu.com/p/93647900](https://zhuanlan.zhihu.com/p/93647900)
+
 最基本的**并查集**，无非就是要判断什么时候所有元素都在一个集合里了。
 那么**每次merge之后， N减去1， 如果N变成1了，则可以认为所有元素都在一个集合中。**
 
@@ -1311,6 +1313,7 @@ ListNode* reverseBetween(ListNode* head, int m, int n) {
 }
 ```
 
+<a id="165. 比较版本号"></a>
 
 ### 165. 比较版本号
 
@@ -1388,5 +1391,32 @@ int compareVersion(string version1, string version2) {
         if (v2[j++] != 0) return -1;
     }
     return 0;
+}
+```
+
+### 322. 零钱兑换
+
+给定不同面额的硬币 coins 和一个总金额 amount。编写一个函数来计算可以凑成总金额所需的最少的硬币个数。如果没有任何一种硬币组合能组成总金额，返回 -1。
+
+贪心算法
+
+```cpp
+int coinChange(vector<int>&coins, int amount) {
+    if (amount == 0) return 0;
+    sort(coins.rbegin(), coins.rend());
+    int ans = INT_MAX;
+    coinChangeCore(coins, 0, amount, 0, ans);
+    return ans==INT_MAX?-1:ans;
+}
+    
+void coinChangeCore(vector<int>&coins,int index,int amount,int count, int &ans) {
+    if (amount == 0) {
+        ans = min(ans,count);
+        return;
+    }
+    if (index == coins.size()) return;
+    for (int k=amount/coins[index]; k>=0&&count+k<ans; k--) {
+        coinChangeCore(coins, index+1, amount-k*coins[index], count+k, ans);
+    }
 }
 ```

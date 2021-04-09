@@ -311,7 +311,7 @@
 	[https://www.jianshu.com/p/1d99e1505f03](https://www.jianshu.com/p/1d99e1505f03)	
 
 1. 当给一个weak属性赋值时,会根据被赋值对象地址为key,当前指针的地址为value在全局的weak表中注册一条记录,如果注册表中当前指针之前指向了一个旧的对象.那么先把之前的那条删除,再添加新的.weak表key是对象地址,value是数组或是hash表.当指针个数小于4的时候是数组
-2. 当weak指向的对象销毁时,64位的指针中有一位标记是否存在weak指针,如果存在,会用改对象当做key去weak表中查找记录,如果有记录,会对所有指向该对象的指针置nil
+2. 当weak指向的对象销毁时,64位的isa指针中有一位标记是否存在weak指针,如果存在,会用改对象当做key去weak表中查找记录,如果有记录,会对所有指向该对象的指针置nil
 3. 可见使用weak时,在赋值与对象销毁的过程中会产生很多的额外操作,在对性能有极限要求的地方可以考虑使用__unsafe_unretained,当然是不影响使用的前提下.(比如YYCache源码中,作者在实现链表的next和pre指针时,就用__unsafe_unretained来代替weak)
 
 * **autorelease对象在什么时机会被调用release**

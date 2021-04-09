@@ -30,7 +30,16 @@
 * <a href="#33. 搜索旋转排序数组">33. 搜索旋转排序数组</a>
 * <a href="#62. 不同路径">62. 不同路径</a>
 * <a href="#92. 反转链表 II">92. 反转链表 II</a>
-* <>
+* <a href="#165. 比较版本号">165. 比较版本号</a>
+* <a href="#322. 零钱兑换">322. 零钱兑换</a>
+* <a href="#124. 二叉树中的最大路径和"> 124. 二叉树中的最大路径和</a>
+* <a href="#215. 数组中的第K个最大元素">215. 数组中的第K个最大元素</a>
+* <a href="#54. 螺旋矩阵">54. 螺旋矩阵</a>
+* <a href="#102. 二叉树的层序遍历">102. 二叉树的层序遍历</a>
+* <a href="#105. 从前序与中序遍历序列构造二叉树">105. 从前序与中序遍历序列构造二叉树</a>
+* <a href="#103. 二叉树的锯齿形层序遍历">103. 二叉树的锯齿形层序遍历</a>
+* <a href="#23. 合并K个升序链表">23. 合并K个升序链表</a>
+* <a href="#440. 字典序的第K小数字">440. 字典序的第K小数字</a>
 
 
 <a id="1. 两数之和"></a>
@@ -1216,7 +1225,7 @@ int search(vector<int>& nums, int target) {
 
 问总共有多少条不同的路径？
 
-![](https://raw.githubusercontent.com/longpf/longpfNote/master/leetcode_pic/robot_maze.png?token=AB5FFV65JHN54ZJWOQBTKK27MHPO2)
+![](../leetcode_pic/robot_maze.png)
 
 ```
 输入: m = 3, n = 2
@@ -1231,7 +1240,7 @@ int search(vector<int>& nums, int target) {
 输出: 28
 ```
 
-![动态规划](https://raw.githubusercontent.com/longpf/longpfNote/master/leetcode_pic/robot_maze_sol.png?token=AB5FFVYZK3ZJHMVQXS3M43S7MHPVQ)
+![动态规划](../leetcode_pic/robot_maze_sol.png)
 
 ```cpp
 // 回溯法 时间过长通不过
@@ -1253,7 +1262,7 @@ int uniquePaths(int m, int n) {
      vector<vector<int>> dp(m, vector<int>(n, 0));
      for(int i = 0; i < m; ++i){
          for(int j = 0; j < n; ++j){
-             dp[i][i] = (i > 0 && j >0 ) ? dp[i][j] = dp[i][j-1] + dp[i-1][j] : 1;
+             dp[i][j] = (i > 0 && j >0 ) ? dp[i][j-1] + dp[i-1][j] : 1;
          }
      }
      return dp[m-1][n-1];
@@ -1394,6 +1403,8 @@ int compareVersion(string version1, string version2) {
 }
 ```
 
+<a id="322. 零钱兑换"></a>
+
 ### 322. 零钱兑换
 
 给定不同面额的硬币 coins 和一个总金额 amount。编写一个函数来计算可以凑成总金额所需的最少的硬币个数。如果没有任何一种硬币组合能组成总金额，返回 -1。
@@ -1418,5 +1429,379 @@ void coinChangeCore(vector<int>&coins,int index,int amount,int count, int &ans) 
     for (int k=amount/coins[index]; k>=0&&count+k<ans; k--) {
         coinChangeCore(coins, index+1, amount-k*coins[index], count+k, ans);
     }
+}
+```
+
+<a id="124. 二叉树中的最大路径和"></a>
+
+
+### 124. 二叉树中的最大路径和
+
+路径 被定义为一条从树中任意节点出发，沿父节点-子节点连接，达到任意节点的序列。同一个节点在一条路径序列中 至多出现一次 。该路径 至少包含一个 节点，且不一定经过根节点。
+
+路径和 是路径中各节点值的总和。
+
+     给你一个二叉树的根节点 root ，返回其 最大路径和 。
+     
+     输入：root = [1,2,3]
+     输出：6
+     解释：最优路径是 2 -> 1 -> 3 ，路径和为 2 + 1 + 3 = 6
+     
+     输入：root = [-10,9,20,null,null,15,7]
+     输出：42
+     解释：最优路径是 15 -> 20 -> 7 ，路径和为 15 + 20 + 7 = 42
+
+
+```cpp
+int maxGain(TreeNode *root,int &res) {
+    if (root == NULL) {
+        return 0;
+    }
+    int left = max(maxGain(root->left, res),0);
+    int right = max(maxGain(root->right, res),0);
+    int sum = root->val + left + right;
+    if (sum > res) {
+        res = sum;
+    }
+    return root->val + max(left,right);
+}
+    
+int maxPathSum(TreeNode* root) {
+    int res = INT_MIN;
+    maxGain(root, res);
+    return res;
+}
+```
+
+<a id = "215. 数组中的第K个最大元素"></a>
+
+### 215. 数组中的第K个最大元素
+
+在未排序的数组中找到第 k 个最大的元素。请注意，你需要找的是数组排序后的第 k 个最大的元素，而不是第 k 个不同的元素。
+ 
+ ```
+ 输入: [3,2,1,5,6,4] 和 k = 2
+ 输出: 5
+ 
+ 输入: [3,2,3,1,2,4,5,5,6] 和 k = 4
+ 输出: 4
+ 你可以假设 k 总是有效的，且 1 ≤ k ≤ 数组的长度。
+ ```
+ 
+ ```cpp
+ int findKthLargest(vector<int>& nums, int k) {
+    if (nums.size() == 0 || k < 1 || k > nums.size()) return 0;
+    priority_queue<int,vector<int>,greater<int>> q{};
+    for (int i = 0; i<nums.size(); i++) {
+        q.push(nums[i]);
+        if (q.size() > k) {
+            q.pop();
+        }
+    }
+    return q.top();
+}
+ ```
+ 
+<a id="54. 螺旋矩阵"></a>
+ 
+### 54. 螺旋矩阵
+
+
+给你一个 m 行 n 列的矩阵 matrix ，请按照 顺时针螺旋顺序 ，返回矩阵中的所有元素。
+
+
+```cpp
+vector<int> spiralOrder(vector<vector<int>>& matrix) {
+    vector<int> res{};
+    int rows = matrix.size();
+    if (rows == 0) return res;
+    int cols = matrix[0].size();
+    if (cols == 0) return res;
+    int top = 0,bottom = rows-1,left = 0,right = cols-1;
+    while (top <= bottom && left <= right) {
+        for (int j = left ; j <= right; j++) {
+            res.push_back(matrix[top][j]);
+        }
+        for (int i = top + 1; i <= bottom; i++) {
+            res.push_back(matrix[i][right]);
+        }
+        if (top < bottom) {
+            for (int j = right-1; j > left; j--) {
+                res.push_back(matrix[bottom][j]);
+            }
+        }
+        if (left < right) {
+            for (int i = bottom; i > top; i--) {
+                res.push_back(matrix[i][left]);
+            }
+        }
+        top++;
+        bottom--;
+        left++;
+        right--;
+    }
+    return res;
+}
+``` 
+
+<a id="102. 二叉树的层序遍历"></a>
+
+### 102. 二叉树的层序遍历
+
+ 给你一个二叉树，请你返回其按 层序遍历 得到的节点值。 （即逐层地，从左到右访问所有节点）。
+
+```
+ 示例：
+ 二叉树：[3,9,20,null,null,15,7],
+
+     3
+    / \
+   9  20
+     /  \
+    15   7
+ 返回其层序遍历结果：
+
+ [
+   [3],
+   [9,20],
+   [15,7]
+ ]
+```
+
+
+```cpp
+vector<vector<int>> levelOrder(TreeNode* root) {
+    vector<vector<int>> res{};
+    if (root==NULL) return res;
+    queue<TreeNode *> q{};
+    q.push(root);
+    int toBePrint = 1;
+    int nextLevel = 0;
+    vector<int> nums;
+    while (!q.empty()) {
+        TreeNode *pNode = q.front();
+        nums.push_back(pNode->val);
+        if (pNode->left) {
+            q.push(pNode->left);
+            nextLevel++;
+        }
+        if (pNode->right) {
+            q.push(pNode->right);
+            nextLevel++;
+        }
+        q.pop();
+        toBePrint--;
+        if (toBePrint==0) {
+            toBePrint = nextLevel;
+            nextLevel = 0;
+            res.push_back(nums);
+            nums.clear();
+        }
+    }
+    return res;
+}
+```
+
+<a id="105. 从前序与中序遍历序列构造二叉树"></a>
+
+### 105. 从前序与中序遍历序列构造二叉树
+
+```cpp
+TreeNode* buildTree(vector<int>& preorder, vector<int>& inorder) {
+    if (preorder.size()==0 || inorder.size()==0) return NULL;
+    return buildTreeCore(preorder, 0, preorder.size()-1, inorder, 0, inorder.size()-1);
+}
+    
+TreeNode *buildTreeCore(vector<int> &pre,int s1,int e1,vector<int> &in,int s2,int e2) {
+    int i = s2;
+    for (; i < e2; i++) {
+        if (pre[s1] == in[i]) {
+            break;
+        }
+    }
+    if (i > e2) return NULL;
+    TreeNode *root = new TreeNode(pre[s1]);
+    root->left = buildTreeCore(pre, s1+1, s1+i-s2, in, s2, i-1);
+    root->right = buildTreeCore(pre, s1+i-s2+1, e1, in, i+1, e2);
+    return root;
+}
+```
+
+<a id="103. 二叉树的锯齿形层序遍历"></a>
+
+### 103. 二叉树的锯齿形层序遍历
+
+之字型打印二叉树
+
+```cpp
+vector<vector<int>> zigzagLevelOrder(TreeNode* root) {
+    vector<vector<int>> res{};
+    if (!root) return res;
+    stack<TreeNode *> odd{};
+    stack<TreeNode *> even{};
+    odd.push(root);
+    vector<int> arr{};
+    while (!odd.empty() || !even.empty()) {
+        while (!odd.empty()) {
+            TreeNode *top= odd.top();
+            arr.push_back(top->val);
+            odd.pop();
+            if (top->left) {
+                even.push(top->left);
+            }
+            if (top->right) {
+                even.push(top->right);
+            }
+        }
+        if (arr.size()) {
+            res.push_back(arr);
+            arr.clear();
+        }
+        while (!even.empty()) {
+            TreeNode *top = even.top();
+            even.pop();
+            arr.push_back(top->val);
+            if (top->right) {
+                odd.push(top->right);
+            }
+            if (top->left) {
+                odd.push(top->left);
+            }
+        }
+        if (arr.size()) {
+            res.push_back(arr);
+            arr.clear();
+        }
+    }
+    return res;
+}
+```
+
+### 22. 括号生成
+
+数字 n 代表生成括号的对数，请你设计一个函数，用于能够生成所有可能的并且 有效的 括号组合。
+
+```
+ 示例 1：
+ 输入：n = 3
+ 输出：["((()))","(()())","(())()","()(())","()()()"]
+ 
+ 示例 2：
+ 输入：n = 1
+ 输出：["()"]
+```
+
+
+```cpp
+vector<string> generateParenthesis(int n) {
+    vector<string> res{};
+    generateParenthesisCore(n, n, "", res);
+    return res;
+}
+    // left左括号剩余的个数,right右括号剩余的个数
+void generateParenthesisCore(int left,int right,string out,vector<string> &res) {
+    if (left > right) return; // 说明out中右括号比左括号多
+    if (left == 0 && right == 0) {
+        res.push_back(out);
+    }
+    else {
+        if (left > 0) {
+            generateParenthesisCore(left-1, right, out+'(', res);
+        }
+        if (right > 0) {
+            generateParenthesisCore(left, right-1, out+')', res);
+        }
+    }
+}
+```
+
+<a id="23. 合并K个升序链表"></a>
+
+### 23. 合并K个升序链表
+
+给你一个链表数组，每个链表都已经按升序排列。
+
+请你将所有链表合并到一个升序链表中，返回合并后的链表。
+
+```cpp
+// 小顶堆比较
+struct cmp {
+    bool operator () (ListNode *n1,ListNode *n2){
+        return n1->val > n2->val;
+    }
+};
+ListNode* mergeKLists(vector<ListNode*>& lists) {
+    priority_queue<ListNode*,vector<ListNode*>,cmp> q;
+    for (int i = 0; i < lists.size();i++)
+    {
+        if (lists[i]) q.push(lists[i]);
+    }
+    ListNode *head = NULL,*pre = NULL,*top = NULL;
+    while (!q.empty()) {
+        top = q.top();
+        q.pop();
+        if (!head) head = top;
+        else pre->next = top;
+        pre = top;
+        if (top->next) q.push(top->next);
+    }
+    return head;
+}
+```
+
+<a id="440. 字典序的第K小数字"></a>
+
+### 440. 字典序的第K小数字
+
+给定整数 n 和 k，找到 1 到 n 中字典序第 k 小的数字。
+
+**Hard 困难**
+
+```
+注意：1 ≤ k ≤ n ≤ 109。
+
+示例 :
+
+输入:
+n: 13   k: 2
+
+输出:
+10
+
+解释:
+字典序的排列是 [1, 10, 11, 12, 13, 2, 3, 4, 5, 6, 7, 8, 9]，所以第二小的数字是 10。
+```
+
+这道题如果使用大顶堆,优先级队列的方式求解, 如果n,k很大的时候, 算法用时过长,不通过
+
+```cpp
+// 获取该前缀下有多少个数
+long getCount(long prefix,long n) {
+    long cur = prefix;
+    // 如果不是long, next可能溢出
+    long next = cur+1; // 下一个前缀
+    long count = 0;
+    while (cur <= n) { // 当前的前缀不能大于上界
+        count += min(next,n+1)-cur;
+        cur *= 10;
+        next *= 10;
+    }
+    return count;
+}
+    
+int findKthNumber(int n, int k) {
+    long p = 1; // 当前所在的位置, 当p==k时,也就是第k个数
+    long prefix = 1;
+    while (p < k) {
+        long count = getCount(prefix, n);
+        if (p + count > k) { // 说明第k个在这个范围
+            p++;
+            prefix *= 10;
+        } else { // 扩大前缀
+            prefix++;
+            p += count;
+        }
+    }
+    return static_cast<int>(prefix);
 }
 ```

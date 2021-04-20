@@ -247,6 +247,8 @@
 
 	![](pic_64.png)
 	
+	不用添加port,perform...afterDelay:就是一个timer,先perform在run
+	
 * 下面的代码的打印结果是什么?
 
 	![](pic_65.png)
@@ -298,11 +300,11 @@
 
 * **ARC 都帮我们做了什么？** 
 
-	LLVM + Runtime 相互协作
+	LLVM + (Runtime 相互协作)(不确定准确)
 	
 	利用LLVM编译器自动生成retain,release,autorelease这种内存管理的代码.比如大括号结束时加上release. 
 	
-	像弱引用则需要runtime支持,需要运行时,清除弱引用对象.
+	像弱引用则需要runtime支持,需要运行时,清除弱引用对象.(不确定)
   
 * **weak指针的实现原理**
 

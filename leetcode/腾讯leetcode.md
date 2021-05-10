@@ -5,6 +5,11 @@
 * <a href="#136. 只出现一次的数字">136. 只出现一次的数字</a>
 * <a href="#169. 多数元素">169. 多数元素</a>
 * <a href="#344. 反转字符串">344. 反转字符串</a>
+* <a href="#148. 排序链表">148. 排序链表</a>
+* <a href="#887. 鸡蛋掉落">887. 鸡蛋掉落</a>
+* <a href="#104. 二叉树的最大深度">104. 二叉树的最大深度</a>
+* <a href="#300. 最长递增子序列">300. 最长递增子序列</a>
+* <a href="#19. 删除链表的倒数第 N 个结点">19. 删除链表的倒数第 N 个结点</a>
 
 
 
@@ -330,5 +335,248 @@ void reverseString(vector<char>& s) {
         s[i] = s[size-1-i];
         s[size-1-i] = tmp;
     }
+}
+```
+
+<a id="148. 排序链表"></a>
+
+### 148. 排序链表
+
+给你链表的头结点 head ，请将其按 升序 排列并返回 排序后的链表 。
+
+```
+你可以在 O(n log n) 时间复杂度和常数级空间复杂度下，对链表进行排序吗？
+示例 1：
+输入：head = [4,2,1,3]
+输出：[1,2,3,4]
+示例 2：
+输入：head = [-1,5,3,4,0]
+输出：[-1,0,3,4,5]
+示例 3：
+输入：head = []
+输出：[]
+```
+
+```cpp
+// 自底向上 
+ListNode* sortList(ListNode* head) {
+    if (!head) return NULL;
+    int length = 0;
+    ListNode *node = head;
+    while (node) {
+        length ++;
+        node = node->next;
+    }
+    ListNode *dummy = new ListNode(0);
+    dummy->next = head;
+    for (int subLength = 1; subLength < length; subLength <<= 1) {
+        ListNode *pre = dummy, *cur = dummy->next;
+        while (cur) {
+            ListNode *head1 = cur;
+            for (int i = 1; i < subLength && cur->next; i++) {
+                cur = cur->next;
+            }
+            ListNode *head2 = cur->next;
+            cur->next = NULL;
+            cur = head2;
+            for (int i = 1; i < subLength && cur && cur->next; i++) {
+                cur = cur->next;
+            }
+            ListNode *next = NULL;
+            if (cur) {
+                next = cur->next;
+                cur->next = NULL;
+            }
+            cur->next = NULL;
+            ListNode *merged = merge(head1, head2);
+            pre->next = merged;
+            while (pre->next) {
+                pre = pre->next;
+            }
+            cur = next;
+        }
+    }
+    ListNode *res = dummy->next;
+    delete dummy;
+    return res;
+}
+    
+ListNode *merge(ListNode *h1,ListNode *h2) {
+    ListNode *dummy = new ListNode(0);
+    ListNode *pre = dummy;
+    while (h1 && h2) {
+        if (h1->val < h2->val) {
+            pre->next = h1;
+            h1 = h1->next;
+        } else {
+            pre->next = h2;
+            h2 = h2->next;
+        }
+        pre = pre->next;
+    }
+    if (h1) pre->next = h1;
+    if (h2) pre->next = h2;
+    ListNode *res = dummy->next;
+    delete dummy;
+    dummy = NULL;
+    return res;
+}
+```
+
+<a id="887. 鸡蛋掉落"></887. 鸡蛋掉落>
+
+### 887. 鸡蛋掉落
+
+**困难 hard**
+
+给你 k 枚相同的鸡蛋，并可以使用一栋从第 1 层到第 n 层共有 n 层楼的建筑。
+
+已知存在楼层 f ，满足 0 <= f <= n ，任何从 高于 f 的楼层落下的鸡蛋都会碎，从 f 楼层或比它低的楼层落下的鸡蛋都不会破。
+
+每次操作，你可以取一枚没有碎的鸡蛋并把它从任一楼层 x 扔下（满足 1 <= x <= n）。如果鸡蛋碎了，你就不能再次使用它。如果某枚鸡蛋扔下后没有摔碎，则可以在之后的操作中 重复使用 这枚鸡蛋。
+
+请你计算并返回要确定 f 确切的值 的 最小操作次数 是多少？
+
+```
+ 示例 1：
+
+ 输入：k = 1, n = 2
+ 输出：2
+ 解释：
+ 鸡蛋从 1 楼掉落。如果它碎了，肯定能得出 f = 0 。
+ 否则，鸡蛋从 2 楼掉落。如果它碎了，肯定能得出 f = 1 。
+ 如果它没碎，那么肯定能得出 f = 2 。
+ 因此，在最坏的情况下我们需要移动 2 次以确定 f 是多少。
+ 示例 2：
+
+ 输入：k = 2, n = 6
+ 输出：3
+ 示例 3：
+
+ 输入：k = 3, n = 14
+ 输出：4
+```
+
+二分法 + 动态规划, 
+
+对于任意楼层x,存在两种情况,次数函数dp(k,n)
+
+* 蛋碎了,接下来剩余k-1个蛋,来下面判断x-1个楼层
+* 蛋没碎,接下来剩余k个蛋,来判断上面剩余的n-x个楼层
+
+函数`T1=dp(k-1,x-1)`, `T2=dp(k,n-x)`,T1是关于x的递增函数,T2是关于x的递减函数.
+
+求对于任意楼层x的`max(t1,t2)`,那交点即为所求的答案
+
+
+![](https://raw.githubusercontent.com/longpf/Resource/master/img/rengjidan.png)
+
+```cpp
+unordered_map<int, int> memo;
+int dp(int k, int n) {
+    // n * 100 + k 为了避免键值冲突, n增加1,key增加100,对于任何k(k<=n)都不冲突,
+    if (memo.find(n * 100 + k) == memo.end()) {
+        int ans;
+        if (n == 0) {
+            ans = 0;
+        } else if (k == 1) {
+            ans = n;
+        } else {
+            int lo = 1, hi = n;
+            while (lo + 1 < hi) {
+                int x = (lo + hi) / 2;
+                int t1 = dp(k - 1, x - 1);
+                int t2 = dp(k, n - x);
+                
+                if (t1 < t2) {
+                    lo = x;
+                } else if (t1 > t2) {
+                    hi = x;
+                } else {
+                    lo = hi = x;
+                }
+            }
+            // 因为T1,T2是离散函数,不是连续函数, 交点左右相差1的时候,取最小值
+            ans = 1 + min(max(dp(k - 1, lo - 1), dp(k, n - lo)),
+                          max(dp(k - 1, hi - 1), dp(k, n - hi)));
+        }
+        
+        memo[n * 100 + k] = ans;
+    }
+    
+    return memo[n * 100 + k];
+}
+int superEggDrop(int k, int n) {
+    return dp(k, n);
+}
+```
+
+<a id="104. 二叉树的最大深度"></a>
+
+### 104. 二叉树的最大深度
+
+```cpp
+int maxDepth(TreeNode* root) {
+    if (!root) {
+        return 0;
+    }
+    int left = maxDepth(root->left);
+    int right = maxDepth(root->right);
+    return 1 + max(left,right);
+}
+```
+
+<a id="300. 最长递增子序列"></a>
+
+### 300. 最长递增子序列
+
+```cpp
+int lengthOfLIS(vector<int>& nums) {
+    int n = nums.size();
+    if (n == 0) return 0;
+    // dp[i] 是以第i个元素结尾的最长升序子序列长度
+    vector<int> dp(n,0);
+    for (int i = 0; i < n; i++) {
+        dp[i] = 1;
+        for (int j = 0; j < i; j++) {
+            if (nums[i] > nums[j]) {
+                dp[i] = max(dp[i],dp[j]+1);
+            }
+        }
+    }
+    int res = 0;
+    for (int k = 0; k < n; k++) {
+        if (dp[k] > res) {
+            res = dp[k];
+        }
+    }
+    return res;
+}
+```
+
+<a id="19. 删除链表的倒数第 N 个结点"></a>
+
+### 19. 删除链表的倒数第 N 个结点
+
+```cpp
+ListNode* removeNthFromEnd(ListNode* head, int n) {
+    ListNode *dummy = new ListNode(0);
+    dummy->next = head;
+    ListNode *fast = head, *slow = dummy;
+    for (int i = 0; i < n; i++) {
+        if (fast) {
+            fast = fast->next;
+        } else {
+            return NULL;
+        }
+    }
+    while (fast) {
+        fast = fast->next;
+        slow = slow->next;
+    }
+    slow->next = slow->next->next;
+    ListNode *res = dummy->next;
+    delete dummy;
+    return res;
 }
 ```

@@ -10,6 +10,12 @@
 * <a href="#104. 二叉树的最大深度">104. 二叉树的最大深度</a>
 * <a href="#300. 最长递增子序列">300. 最长递增子序列</a>
 * <a href="#19. 删除链表的倒数第 N 个结点">19. 删除链表的倒数第 N 个结点</a>
+* <a href="#88. 合并两个有序数组">88. 合并两个有序数组</a>
+* <a href="#292. Nim 游戏">292. Nim 游戏</a>
+* <a href="#415. 字符串相加">415. 字符串相加</a>
+* <a href="#160. 相交链表">160. 相交链表</a>
+* <a href="#用两个栈实现队列">用两个栈实现队列</a>
+* <a href="#236. 二叉树的最近公共祖先">236. 二叉树的最近公共祖先</a>
 
 
 
@@ -423,7 +429,9 @@ ListNode *merge(ListNode *h1,ListNode *h2) {
 }
 ```
 
-<a id="887. 鸡蛋掉落"></887. 鸡蛋掉落>
+
+
+<a id="887. 鸡蛋掉落"></a>
 
 ### 887. 鸡蛋掉落
 
@@ -578,5 +586,230 @@ ListNode* removeNthFromEnd(ListNode* head, int n) {
     ListNode *res = dummy->next;
     delete dummy;
     return res;
+}
+```
+
+<a id="88. 合并两个有序数组"></a>
+
+### 88. 合并两个有序数组
+
+给你两个有序整数数组 nums1 和 nums2，请你将 nums2 合并到 nums1 中，使 nums1 成为一个有序数组。
+
+初始化 nums1 和 nums2 的元素数量分别为 m 和 n 。你可以假设 nums1 的空间大小等于 m + n，这样它就有足够的空间保存来自 nums2 的元素。
+
+```
+示例 1：
+输入：nums1 = [1,2,3,0,0,0], m = 3, nums2 = [2,5,6], n = 3
+输出：[1,2,2,3,5,6]
+示例 2：
+输入：nums1 = [1], m = 1, nums2 = [], n = 0
+输出：[1]
+```
+
+```cpp
+/*
+ 双指针 反向排序
+ p1 后面有m-1-p1个元素
+ p2 后面有n-1-p2个元素
+ num1在p1后面有m+n-1-p1个元素
+ 那么必须有 m-1-p1 + n-1-p2 <= m+n-1-p1
+ ==> -1 <= p2 成立
+ */
+void merge(vector<int>& nums1, int m, vector<int>& nums2, int n) {
+    int p1 = m - 1, p2 = n - 1;
+    int tail = m + n - 1;
+    int cur;
+    while (p1 >= 0 || p2 >= 0) {
+        if (p1 == -1) {
+            cur = nums2[p2--];
+        } else if (p2 == -1) {
+            cur = nums1[p1--];
+        } else if (nums1[p1] > nums2[p2]) {
+            cur = nums1[p1--];
+        } else {
+            cur = nums2[p2--];
+        }
+        nums1[tail--] = cur;
+    }
+}
+```
+
+<a id="292. Nim 游戏"></a>
+
+### 292. Nim 游戏
+
+桌子上有一堆石头。
+
+你们轮流进行自己的回合，你作为先手。
+
+每一回合，轮到的人拿掉 1 - 3 块石头。
+
+拿掉最后一块石头的人就是获胜者。
+
+```
+示例 1：
+输入：n = 4
+输出：false
+解释：如果堆中有 4 块石头，那么你永远不会赢得比赛；
+因为无论你拿走 1 块、2 块 还是 3 块石头，最后一块石头总是会被你的朋友拿走。
+示例 2：
+输入：n = 1
+输出：true
+示例 3：
+输入：n = 2
+输出：true
+```
+
+```cpp
+n 不能被 4 整除，那么你总是可以赢得 Nim 游戏的胜利。
+推理
+让我们考虑一些小例子。显而易见的是，如果石头堆中只有一块、两块、或是三块石头，那么在你的回合，你就可以把全部石子拿走，从而在游戏中取胜。而如果就像题目描述那样，堆中恰好有四块石头，你就会失败。因为在这种情况下不管你取走多少石头，总会为你的对手留下几块，使得他可以在游戏中打败你。因此，要想获胜，在你的回合中，必须避免石头堆中的石子数为 4 的情况。
+	
+同样地，如果有五块、六块、或是七块石头，你可以控制自己拿取的石头数，总是恰好给你的对手留下四块石头，使他输掉这场比赛。但是如果石头堆里有八块石头，你就不可避免地会输掉，因为不管你从一堆石头中挑出一块、两块还是三块，你的对手都可以选择三块、两块或一块，以确保在再一次轮到你的时候，你会面对四块石头。
+
+ 显然，它以相同的模式不断重复
+ n=4,8,12,16,…
+bool canWinNim(int n) {
+    return (n % 4 != 0);
+}
+```
+
+<a id="415. 字符串相加"></a>
+
+### 415. 字符串相加
+
+给定两个字符串形式的非负整数 num1 和num2 ，计算它们的和。
+
+```cpp
+string addStrings(string num1, string num2) {
+     int i = num1.length() - 1, j = num2.length() - 1, add = 0;
+     string ans = "";
+     while (i >= 0 || j >= 0 || add != 0) {
+         int x = i >= 0 ? num1[i] - '0' : 0;
+         int y = j >= 0 ? num2[j] - '0' : 0;
+         int result = x + y + add;
+         ans.push_back('0' + result % 10);
+         add = result / 10;
+         i -= 1;
+         j -= 1;
+     }
+     // 计算完以后的答案需要翻转过来
+     reverse(ans.begin(), ans.end());
+     return ans;
+ }
+ 
+ string addStrings(string num1, string num2) {
+    int m = num1.size(),n = num2.size();
+    vector<int> store(m+n,0);
+    int i = m-1,j = n-1, index = store.size()-1;
+    int carry = 0;
+    while (i >= 0 || j >=0) {
+        int n1 = 0, n2 = 0;
+        if (i >= 0) n1 = num1[i--]-'0';
+        if (j >=0 ) n2 = num2[j--]-'0';
+        int sum = n1 + n2 + carry;
+        store[index--] = sum%10;
+        carry = sum/10;
+    }
+    if (carry > 0) {
+        store[index] = carry;
+    }
+    string res = "";
+    res.push_back('0'+1);
+    for (int i=0; i < store.size(); i++) {
+        if (store[i]==0 && res.size()==0) continue;
+        res += to_string(store[i]);
+    }
+    return res.size() == 0 ? "0" : res;
+}
+```
+
+<a id="160. 相交链表"></a>
+
+### 160. 相交链表
+
+```cpp
+ListNode *getIntersectionNode(ListNode *headA, ListNode *headB) {
+    if (!headA || !headB) return NULL;
+    int len1 = getLength(headA);
+    int len2 = getLength(headB);
+    ListNode *longList = len1 > len2 ? headA : headB;
+    ListNode *shortList = longList == headA ? headB : headA;
+    int dis = abs(len1 - len2);
+    for (int i = 0; i < dis; i++) {
+        longList = longList->next;
+    }
+    while (longList && shortList) {
+        if (longList == shortList) {
+            return longList;
+        }
+        longList = longList->next;
+        shortList = shortList->next;
+    }
+    return NULL;
+}
+    
+int getLength(ListNode *node) {
+    int len = 0;
+    while (node) {
+        len++;
+        node = node->next;
+    }
+    return len;
+}
+```
+
+<a id="用两个栈实现队列"></a>
+
+### 用两个栈实现队列
+
+```cpp
+class Solution
+{
+public:
+    void push(int node){
+        stack1.push(node);
+    }
+    int pop(){
+        if (stack2.empty()) {
+            while (!stack1.empty()) {
+                stack2.push(stack1.top());
+                stack1.pop();
+            }
+        }
+        int res = -1;
+        if (!stack2.empty()) {
+            res = stack2.top();
+            stack2.pop();
+        }
+        return res;
+    }
+    
+private:
+    stack<int> stack1;
+    stack<int> stack2;
+};
+```
+
+<a id="236. 二叉树的最近公共祖先"></a>
+
+### 236. 二叉树的最近公共祖先
+
+```cpp
+
+*
+ 1. 一个节点是另一个的子节点
+ 2. 两个节点在不同分支
+ 3. 递归left,right
+ */
+TreeNode* lowestCommonAncestor(TreeNode* root, TreeNode* p, TreeNode* q) {
+    if (!root) return NULL;
+    if (root == p || root == q) return root;
+    TreeNode *left = lowestCommonAncestor(root->left, p, q);
+    TreeNode *right = lowestCommonAncestor(root->right, p, q);
+    if (left && right) {
+        return root;
+    }
+    return right ? right : left;
 }
 ```

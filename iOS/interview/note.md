@@ -1461,6 +1461,21 @@ if (!self.thread) return;
 
 ### pthread_rwlock
 
+内部是互斥锁实现
+
+```
+typedef struct{
+    pthread_mutex_t rw_mutex;// basic lock on this  struct
+    pthread_cond_t  rw_condreaders;//for reader
+    pthread_cond_t rw_condwriteres;//for writer
+    
+    int rw_magic;                  //for error checking
+    int rw_nwaiterreaders;         //the num of readers
+    int rw_nwaiterwirteres;        //the num of writers
+    int rw_refcount;               //-1 is writer has this lock else reader has this lock
+}pthread_rwlock_t;
+```
+
 ![](pic_83.png)
 
 ### dispatch_barrier_async

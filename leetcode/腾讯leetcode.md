@@ -393,7 +393,7 @@ ListNode* sortList(ListNode* head) {
                 next = cur->next;
                 cur->next = NULL;
             }
-            cur->next = NULL;
+//            cur->next = NULL;
             ListNode *merged = merge(head1, head2);
             pre->next = merged;
             while (pre->next) {

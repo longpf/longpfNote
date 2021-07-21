@@ -6,6 +6,9 @@
 * <a href="#63. 不同路径 II">63. 不同路径 II</a>
 * <a href="#343. 整数拆分">343. 整数拆分</a>
 * <a href="#96. 不同的二叉搜索树">96. 不同的二叉搜索树</a>
+* <a href="#01背包">01背包</a>
+	* <a href="#01背包二维dp">01背包二维dp</a>
+	* <a href="#01背包一维dp">01背包一维dp</a>
 
 
 <a id="动规五部曲"></a>
@@ -176,5 +179,74 @@ int numTrees(int n) {
         }
     }
     return dp[n];
+}
+```
+
+<a id="01背包"></a>
+
+### 01背包
+
+<a id="01背包二维dp"></a>
+
+#### 01背包二维dp
+
+```cpp
+void test_2_wei_bag_problem1() {
+    vector<int> weight = {1,3,4};
+    vector<int> value = {15,20,30};
+    int bagWeight = 4;
+    // 1. dp[i][j]表示从小标[0,1]取任意个物品,放进容量为j的背包,所产生的价值
+    vector<vector<int>> dp(weight.size(),vector<int>(bagWeight+1,0));
+    // 2. dp[i][j] 由:
+    //      a: dp[i-1][j], 背包中不放i
+    //      b: dp[i-1][j-weight[i]] + value[i],背包中存放i的价值
+    // => dp[i][j] = max(a,b)
+    // 3. 初始化,dp[i][0] = 0,dp[0][j] = vlaue[0] (当j>=weight[0])
+    for (int j=weight[0]; j<=bagWeight; j++) {
+        dp[0][j] = value[0];
+    }
+    // 4. 遍历
+    for (int i = 1; i < weight.size(); i++) { // 遍历物品
+        for (int j = 1; j <= bagWeight; j++) { // 遍历背包容量
+            if (j < weight[i]) {
+                dp[i][j] = dp[i-1][j];
+            } else {
+                dp[i][j] = max(dp[i-1][j],dp[i-1][j-weight[i]]+value[i]);
+            }
+        }
+    }
+    int res = dp[weight.size()-1][bagWeight];
+    cout <<"test_2_wei_bag_problem1 = " << res << endl;
+}
+```
+
+<a id="01背包一维dp"></a>
+#### 01背包一维dp
+
+```cpp
+/*
+ 二维递推公式dp[i][j] = max(dp[i-1][j],dp[i-1][j-weight[i]]+value[i])
+ 中,dp[i-1]可以拷贝存储到dp[i]中  =>
+ 
+ 1. dp[j], 容量为j,的最大价值
+ 2. 递推公式 dp[j] = max(dp[j], dp[j - weight[i]] + value[i]);
+ 3. 初始化dp[j] 价值都是非0的, 推导中一直取最大值.则初始化为0可以
+ 4. 需要倒序遍历, 这样才能保证每一个物品i值被放入一次.
+    如果是正序, i=0时,
+    dp[1] = dp[1 - weight[0]] + value[0] = 15
+    dp[2] = dp[2 - weight[0]] + value[0] = 30
+    这样物品0就被使用了两次
+ */
+void test_1_wei_bag_problem() {
+    vector<int> weight = {1,3,4};
+    vector<int> value = {15,20,30};
+    int bagWeight = 4;
+    vector<int> dp(bagWeight+1,0);
+    for (int i=0; i < weight.size(); i++) {
+        for (int j = bagWeight; j>=weight[i]; j--) {
+            dp[j] = max(dp[j],dp[j-weight[i]]+value[i]);
+        }
+    }
+    cout << dp[bagWeight] << endl;
 }
 ```

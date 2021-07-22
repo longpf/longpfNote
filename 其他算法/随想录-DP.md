@@ -9,6 +9,8 @@
 * <a href="#01背包">01背包</a>
 	* <a href="#01背包二维dp">01背包二维dp</a>
 	* <a href="#01背包一维dp">01背包一维dp</a>
+* <a href="#416. 分割等和⼦集">416. 分割等和⼦集</a>
+* <a href="#1049. 最后⼀块⽯头的重量 II">1049. 最后⼀块⽯头的重量 II</a>
 
 
 <a id="动规五部曲"></a>
@@ -248,5 +250,86 @@ void test_1_wei_bag_problem() {
         }
     }
     cout << dp[bagWeight] << endl;
+}
+```
+
+<a id="416. 分割等和⼦集"></a>
+### 416. 分割等和⼦集
+
+给定⼀个只包含正整数的⾮空数组。是否可以将这个数组分割成两个⼦集，使得两个⼦集的元素和相
+等。
+注意:
+每个数组中的元素不会超过 100
+数组的⼤⼩不会超过 200
+示例 1:
+输⼊: [1, 5, 11, 5]
+输出: true
+解释: 数组可以分割成 [1, 5, 5] 和 [11].
+ 
+01背包问题
+
+* 背包的体积sum/2
+* 背包要放入的元素,重量为元素数值,价值也是元素数值
+* 背包如果正好装满,说明找到了sum/2
+* 背包中每一个元素是不可重复放入
+ 
+1. dp[i],背包的总量为i,最大可以凑成i的子集和
+2. dp[j] = max(dp[j],dp[j-num[i]]+num[i])
+3. 这里价值是非负整数,所以初始化为0,如果可能有负数则初始化为INT_MIN
+每个元素不会超过100,数组大小不超过200.那总和不超过20000,背包最大为10000
+4. 遍历顺序,跟01背包一样,
+ 
+```cpp
+bool canPartition(vector<int>& nums) {
+    int sum = 0;
+    for (int i = 0; i < nums.size(); i++) {
+        sum += nums[i];
+    }
+    if (sum % 2 == 1) return false;
+    int target = sum/2;
+    vector<int> dp(10001,0);
+    for (int i = 0; i < nums.size(); i++) {
+        for (int j = target; j >= nums[i]; j--) {
+            dp[j] = max(dp[j],dp[j-nums[i]]+nums[i]);
+        }
+    }
+    if (dp[target] == target) return true;
+    return false;
+}
+```
+
+<a id="1049. 最后⼀块⽯头的重量 II"></a>
+### 1049. 最后⼀块⽯头的重量 II
+
+```
+有⼀堆⽯头，每块⽯头的重量都是正整数。
+每⼀回合，从中选出任意两块⽯头，然后将它们⼀起粉碎。假设⽯头的重量分别为 x 和 y，且 x <= y。
+那么粉碎的可能结果如下：
+如果 x == y，那么两块⽯头都会被完全粉碎；
+如果 x != y，那么重量为 x 的⽯头将会完全粉碎，⽽重量为 y 的⽯头新重量为 y-x。
+最后，最多只会剩下⼀块⽯头。返回此⽯头最⼩的可能重量。如果没有⽯头剩下，就返回 0。
+示例：
+输⼊：[2,7,4,1,8,1]
+输出：1
+ 
+本题其实就是尽量让⽯头分成重量相同的两堆，相撞之后剩下的⽯头最⼩，这样就化解成01背包问题
+了。
+这里跟416很像,01背包问题
+```
+
+```cpp
+int lastStoneWeightII(vector<int>& stones) {
+    int sum = 0;
+    for (int i = 0; i < stones.size(); i++) {
+        sum += stones[i];
+    }
+    int target = sum/2;
+    vector<int> dp(15001,0);
+    for (int i = 0; i < stones.size(); i++) {
+        for (int j = target; j >= stones[i]; j--) {
+            dp[j] = max(dp[j],dp[j-stones[i]]+stones[i]);
+        }
+    }
+    return sum-dp[target]-dp[target];
 }
 ```

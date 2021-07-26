@@ -11,6 +11,10 @@
 	* <a href="#01背包一维dp">01背包一维dp</a>
 * <a href="#416. 分割等和⼦集">416. 分割等和⼦集</a>
 * <a href="#1049. 最后⼀块⽯头的重量 II">1049. 最后⼀块⽯头的重量 II</a>
+* <a href="#494. ⽬标和">494. ⽬标和</a>
+* <a href="#股票问题">股票问题</a>
+	* <a href="#121. 买卖股票的最佳时机">121. 买卖股票的最佳时机</a>
+	* <a href="#122. 买卖股票的最佳时机 II">122. 买卖股票的最佳时机 II</a>
 
 
 <a id="动规五部曲"></a>
@@ -332,4 +336,158 @@ int lastStoneWeightII(vector<int>& stones) {
     }
     return sum-dp[target]-dp[target];
 }
+```
+
+
+### 494. ⽬标和
+
+<a id="494. ⽬标和"></a>
+
+```
+给定⼀个⾮负整数数组，a1, a2, ..., an, 和⼀个⽬标数，S。现在你有两个符号 + 和 -。对于数组中的任意
+⼀个整数，你都可以从 + 或 -中选择⼀个符号添加在前⾯。
+返回可以使最终数组和为⽬标数 S 的所有添加符号的⽅法数。
+示例：
+输⼊：nums: [1, 1, 1, 1, 1], S: 3
+输出：5
+解释：
+-1+1+1+1+1 = 3
++1-1+1+1+1 = 3
++1+1-1+1+1 = 3
++1+1+1-1+1 = 3
++1+1+1+1-1 = 3
+⼀共有5种⽅法让最终⽬标和为3。
+ 
+转化成01背包问题
+假设加法的总和为x, 那么减法总和为sum-x
+所以  x-(sum-x) = S
+x = (S + sum)/2
+如果 (S + sum)%2是奇数,则无解, 例如:sum=5,S=2,那x=3,不合理
+ 
+1. dp[j] 表示装满j, 有dp[j]种方法
+2. 递推公式
+不考虑nums[i]的情况下,
+dp[j] = dp[j-nums[i]],
+将每个nums[i] 叠加起来就是dp[j]
+3. 初始化, dp[0] = 1,装满容量为0的背包有一种方法
+```
+ 
+```cpp
+int findTargetSumWays(vector<int>& nums, int S) {
+    int sum = 0;
+    for (int i=0; i < nums.size(); i++) {
+        sum+=nums[i];
+    }
+    if (S > sum) return 0;
+    if ((S+sum)%2==1) return 0;
+    int bagSize = (S+sum)/2;
+    vector<int> dp(bagSize+1,0);
+    dp[0] = 1;
+    for (int i = 0; i < nums.size(); i++) {
+        for (int j = bagSize; j >= nums[i]; j--) {
+            dp[j] += dp[j-nums[i]];
+        }
+    }
+    return dp[bagSize];
+}
+```
+
+<a id="股票问题"></a>
+<a id="121. 买卖股票的最佳时机"></a>
+### 121. 买卖股票的最佳时机
+
+```
+给定⼀个数组 prices ，它的第 i 个元素 prices[i] 表示⼀⽀给定股票第 i 天的价格。
+你只能选择 某⼀天 买⼊这只股票，并选择在 未来的某⼀个不同的⽇⼦ 卖出该股票。设计⼀个算法来计
+算你所能获取的最⼤利润。
+返回你可以从这笔交易中获取的最⼤利润。如果你不能获取任何利润，返回 0 。
+示例 1：
+输⼊：[7,1,5,3,6,4]
+输出：5
+解释：在第 2 天（股票价格 = 1）的时候买⼊，在第 5 天（股票价格 = 6）的时候卖出，最⼤利润 = 6-1
+= 5 。注意利润不能是 7-1 = 6, 因为卖出价格需要⼤于买⼊价格；同时，你不能在买⼊前卖出股票。
+```
+
+```cpp
+// 贪心法
+int maxProfit(vector<int>& prices) {
+    int res = 0;
+    if (prices.size() < 2) return res;
+    int minPrice = prices[0];
+    for (int i = 1; i < prices.size(); i++) {
+        int price = prices[i];
+        res = max(price-minPrice,res);
+        minPrice = min(price,minPrice);
+    }
+    return res;
+}
+    
+// dp
+int maxProfit2(vector<int>& prices) {
+    size_t len = prices.size();
+    if (len == 0) return 0;
+    // dp[i][0] 表示第i天持有的收益
+    // dp[i][1] 表示第i天卖出的收益
+    vector<vector<int>> dp(len,vector<int>(2));
+    // 第0天持有收益
+    dp[0][0] = -prices[0];
+    // 第0天卖出
+    dp[0][1] = 0;
+    for (int i = 1; i < len; i++) {
+        dp[i][0] = max(dp[i-1][0],-prices[i]); // max(前一天已经持有,第i天买入)
+        dp[i][1] = max(dp[i-1][1],prices[i]+dp[i-1][0]); // max(前一天已经卖出,第i天卖出)
+    }
+    return dp[len-1][1];
+}
+
+/*
+ dp  空间O(1)
+ dp[i] 是邮dp[i-1]推导而来
+ dp[i][0] = max(dp[i-1][0],-prices[i]); // max(前一天已经持有,第i天买入)
+ dp[i][1] = max(dp[i-1][1],prices[i]+dp[i-1][0]); // max(前一天已经卖出,第i天卖出)
+ */
+int maxProfit3(vector<int>& prices) {
+    size_t len = prices.size();
+    vector<vector<int>> dp(2,vector<int>(2,0));
+    dp[0][0] = -prices[0];
+    dp[0][1] = 0;
+    for (int i = 1; i<len; i++) {
+        dp[i%2][0] = max(dp[(i-1)%2][0],-prices[i]);
+        dp[i%2][1] = max(dp[(i-1)%2][1],dp[(i-1)%2][0]+prices[i]);
+    }
+    return dp[(len-1)%2][1];
+}
+```
+<a id="122. 买卖股票的最佳时机 II"></a>
+### 122. 买卖股票的最佳时机 II
+
+可以多次买卖
+
+```cpp
+int maxProfit_mul(vector<int>& prices) {
+    size_t len = prices.size();
+    if (len == 0) return 0;
+    vector<vector<int>> dp(len,vector<int>(2,0));
+    dp[0][0] = -prices[0];
+    dp[0][1] = 0;
+    for (int i = 1; i < len; i++) {
+        dp[i][0] = max(dp[i-1][0],dp[i-1][1]-prices[i]);
+        dp[i][1] = max(dp[i-1][1],dp[i-1][0]+prices[i]);
+    }
+    return dp[len-1][1];
+}
+    
+int maxProfit_mul2(vector<int>& prices) {
+    size_t len = prices.size();
+    vector<vector<int>> dp(2,vector<int>(2,0));
+    dp[0][0] = -prices[0];
+    dp[0][1] = 0;
+    for (int i = 1; i<len; i++) {
+    	  // 第i天的可以由 第i-1天已经持有,或者 第i-1天卖出,第i天持有 取最大,, 这是与 一次买卖不同点
+        dp[i%2][0] = max(dp[(i-1)%2][0],dp[(i-1)%2][1]-prices[i]);
+        dp[i%2][1] = max(dp[(i-1)%2][1],dp[(i-1)%2][0]+prices[i]);
+    }
+    return dp[(len-1)%2][1];
+}
+
 ```

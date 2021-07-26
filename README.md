@@ -12,3 +12,4 @@
 * [leetcode-腾讯](https://github.com/longpf/longpfNote/blob/master/leetcode/腾讯leetcode.md)
 * [知识点](https://github.com/longpf/longpfNote/blob/master/iOS/知识点.md)
 * [其他算法](https://github.com/longpf/longpfNote/blob/master/其他算法/其他算法.md)
+* [随想录-DP](https://github.com/longpf/longpfNote/blob/master/其他算法/随想录-DP.md#)

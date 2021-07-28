@@ -40,6 +40,7 @@
 * <a href="#103. 二叉树的锯齿形层序遍历">103. 二叉树的锯齿形层序遍历</a>
 * <a href="#23. 合并K个升序链表">23. 合并K个升序链表</a>
 * <a href="#440. 字典序的第K小数字">440. 字典序的第K小数字</a>
+* <a href="#字母组合">字母组合</a>
 
 
 <a id="1. 两数之和"></a>
@@ -1803,5 +1804,34 @@ int findKthNumber(int n, int k) {
         }
     }
     return static_cast<int>(prefix);
+}
+```
+
+<a id="字母组合"></a>
+### 字母组合
+
+```
+A:1, B:2 , C:3 ... Z:26
+AB : 12
+AC : 13
+AD : 14
+AZ : 126
+126 对应的组合有  AZ/ABF/LF 
+问112113114115116有多少组合
+```
+
+```cpp
+void findAll(string numStr) {
+    int len = numStr.length();
+    vector<int> dp(len,0);
+    dp[0] = 1;
+    
+    for (int i = 1; i < len; i++) {
+        string s = "";
+        s += numStr[i-1];
+        s += numStr[i];
+        dp[i] = dp[i-1]+(stoi(s)<27?1:0);
+    }
+    cout << "findAll = " << dp[len-1] << endl;
 }
 ```

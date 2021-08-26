@@ -16,7 +16,16 @@
 	* <a href="#121. 买卖股票的最佳时机">121. 买卖股票的最佳时机</a>
 	* <a href="#122. 买卖股票的最佳时机 II">122. 买卖股票的最佳时机 II</a>
 	* <a href="#123. 买卖股票的最佳时机 III">123. 买卖股票的最佳时机 III</a>
-
+	* <a href="#188. 买卖股票的最佳时机 IV">188. 买卖股票的最佳时机 IV</a>
+	* <a href="#309.最佳买卖股票时机含冷冻期">309.最佳买卖股票时机含冷冻期</a>
+	* <a href="#714.买卖股票的最佳时机含⼿续费">714.买卖股票的最佳时机含⼿续费</a>
+* <a href="#子序列问题">子序列问题</a>
+	* <a href="#300.最⻓递增⼦序列">300.最⻓递增⼦序列</a>
+	* <a href="#674. 最⻓连续递增序列">674. 最⻓连续递增序列</a>
+	* <a href="#718. 最⻓重复⼦数组">718. 最⻓重复⼦数组</a>
+	* <a href="#1143.最⻓公共⼦序列">1143.最⻓公共⼦序列</a>
+	* <a href="#53. 最⼤⼦序和">53. 最⼤⼦序和</a>
+	* <a href="#1035.不相交的线">1035.不相交的线</a>
 
 <a id="动规五部曲"></a>
 动规五部曲: 
@@ -538,5 +547,318 @@ int maxProfit_2times_2_2(vector<int>& prices) {
         dp[4] = max(dp[4],dp[3]+prices[i]);
     }
     return dp[4];
+}
+```
+
+<a id="188. 买卖股票的最佳时机 IV"></a>
+
+### 188. 买卖股票的最佳时机 IV
+
+困难
+
+```cpp
+// 股票问题,买卖 k 次
+int maxProfit(int k, vector<int>& prices) {
+    int len = prices.size();
+    if (len == 0) return 0;
+    /*
+     dp[i][j]
+     0 不操作
+     1 第一次买入
+     2 第一次卖出
+     3 第二次买入
+     4 第二次卖出
+     ...
+     共有 2 * k + 1个状态
+     */
+    vector<vector<int>> dp(len,vector<int>(2*k+1,0));
+    for (int j = 1; j < 2 * k; j += 2) {
+        dp[0][j] = -prices[0];
+    }
+    for (int i = 1; i < len; i++) {
+        for (int j = 0; j < 2 * k - 1; j+=2) {
+            dp[i][j+1] = max(dp[i-1][j+1],dp[i-1][j]-prices[i]);
+            dp[i][j+2] = max(dp[i-1][j+2],dp[i-1][j+1]+prices[i]);
+        }
+    }
+    return dp[len-1][2*k];
+}
+```
+
+<a id="309.最佳买卖股票时机含冷冻期"></a>
+### 309.最佳买卖股票时机含冷冻期
+
+```cpp
+// 多次买卖, 卖出后冻结一天的时间
+int maxProfit_lengDong(vector<int>& prices) {
+    int len = prices.size();
+    /*
+     状态一    持有股票状态
+     状态二    两天前卖出状态,度过冷冻期,
+     状态三    今天卖出
+     状态四    今天冷冻期,冷冻期为1天
+     */
+    vector<vector<int>> dp(len,vector<int>(4,0));
+    dp[0][0] = -prices[0];
+    dp[0][1] = 0;
+    dp[0][2] = 0;
+    dp[0][3] = 0;
+    for (int i = 1; i < len; i++) {
+        /*
+         持有状态由两种情况推到:
+         1.前一天已经持有
+         2.当天(第i天)买入, 可买入的情况如下
+            2.1 前一天是冷冻期
+            2.2 前一天就已经是未持有状态(状态二)
+         */
+        dp[i][0] = max(dp[i-1][0],max(dp[i-1][3]-prices[i],dp[i-1][1]-prices[i]));
+        /*
+         状态二由下面两种情况推导:
+         1. 前一天已经是状态二
+         2. 前一天是冷冻状态
+         */
+        dp[i][1] = max(dp[i-1][1],dp[i-1][3]);
+        /*
+         状态三 只能由前一天为持有状态下推导
+         */
+        dp[i][2] = dp[i-1][0]+prices[i];
+        /*
+         状态四 只能是前一天卖出
+         */
+        dp[i][3] = dp[i-1][2];
+    }
+    return max(dp[len-1][3],max(dp[len-1][1],dp[len-1][2]));
+}
+```
+
+<a id="714.买卖股票的最佳时机含⼿续费"></a>
+### 714.买卖股票的最佳时机含⼿续费
+
+```cpp
+// 多次买卖, 每次卖出时需要交一笔手续费fee
+int maxProfitWithFee(vector<int>& prices, int fee){
+    int len = prices.size();
+    if (len == 0) return 0;
+    vector<vector<int>> dp(len,vector<int>(2,0));
+    dp[0][0] = -prices[0];
+    for (int i = 1; i < len; i++) {
+        dp[i][0] = max(dp[i-1][0],dp[i-1][1]-prices[i]);
+        dp[i][1] = max(dp[i-1][1],dp[i-1][0]+prices[i]-fee);
+    }
+    return max(dp[len-1][1],dp[len-1][0]);
+}
+```
+
+<a id="子序列问题"></a>
+### 子序列问题
+
+<a id="300.最⻓递增⼦序列"></a>
+
+### 300.最⻓递增⼦序列
+
+```cpp
+给你⼀个整数数组 nums ，找到其中最⻓严格递增⼦序列的⻓度。
+⼦序列是由数组派⽣⽽来的序列，删除（或不删除）数组中的元素⽽不改变其余元素的顺序。例如，
+[3,6,2,7] 是数组 [0,3,1,6,2,2,7] 的⼦序列。
+示例 1：
+输⼊：nums = [10,9,2,5,3,7,101,18]
+输出：4
+解释：最⻓递增⼦序列是 [2,3,7,101]，因此⻓度为 4 。
+```
+
+```cpp
+int lengthOfLIS(vector<int>& nums) {
+    int n = nums.size();
+    if (n == 0) return 0;
+    // dp[i] : [0,i]的最大子序列长度
+    vector<int> dp(n,0);
+    int res = 0;
+    for (int i=0; i<n; i++) {
+        // dp[i] 起始大小至少为1
+        dp[i] = 1;
+        for (int j = 0; j < i; j++) {
+            if (nums[i] > nums[j]) dp[i] = max(dp[i],dp[j]+1);
+        }
+        if (dp[i] > res) res = dp[i];
+    }
+    return res;
+}
+```
+
+<a id="674. 最⻓连续递增序列"></a>
+### 674. 最⻓连续递增序列
+
+```cpp
+int findLengthOfLCIS(vector<int>& nums) {
+    int n = nums.size();
+    if (n == 0) return 0;
+    // dp[i] 以i为结尾的最大连续子序列长度
+    vector<int> dp(n,1);
+    int res = 1;
+    for (int i = 0; i < n-1; i++) {
+        if(nums[i+1] > nums[i]) dp[i+1] = dp[i] + 1;
+        if (dp[i+1] > res) res = dp[i+1];
+    }
+    return res;
+}
+```
+
+<a id="718. 最⻓重复⼦数组"></a>
+### 718. 最⻓重复⼦数组
+
+```
+/*
+ 给两个整数数组 A 和 B ，返回两个数组中公共的、⻓度最⻓的⼦数组的⻓度。
+ 示例：
+ 输⼊：
+ A: [1,2,3,2,1]
+ B: [3,2,1,4,7]
+ 输出：3
+ 解释：
+ ⻓度最⻓的公共⼦数组是 [3, 2, 1] 。
+ */
+```
+
+```cpp
+int findLength(vector<int>& A, vector<int>& B) {
+    int res = 0;
+    /*
+     dp[i][j]表示 A的小标[0,i-1]和B的下标[0,j-1]的最大重复个数
+     i-1,j-1这种表示是为了更方便初始化,和递推
+     */
+    vector<vector<int>> dp(A.size()+1,vector<int>(B.size()+1,0));
+    for (int i = 1; i <= A.size(); i++) {
+        for (int j = 1; j <= B.size(); j++) {
+            if (A[i-1] == B[j-1]) {
+                dp[i][j] = dp[i-1][j-1] + 1;
+            }
+            if (dp[i][j] > res) res = dp[i][j];
+        }
+    }
+    return res;
+}
+// 不好理解 会上面的就行
+// 滚动数组解法, 因为dp[i][j] 都是由dp[i-1][j-1] 可以压缩为 dp[j]由dp[j-1],为了避免重复B从后遍历
+int findLength2(vector<int>& A, vector<int>& B) {
+    int res = 0;
+    vector<int> dp(B.size()+1,0);
+    for (int i = 1; i <= A.size(); i++) {
+        for (int j = B.size();j > 0;j--) {
+            if (A[i-1] == B[j-1]) {
+                dp[j] = dp[j-1] + 1;
+            } else {
+                dp[j] = 0;
+            }
+            if (dp[j] > res) {
+                res = dp[j];
+            }
+        }
+    }
+    return res;
+}
+```
+
+<a id="1143.最⻓公共⼦序列"></a>
+### 1143.最⻓公共⼦序列
+
+```cpp
+/*
+ 给定两个字符串 text1 和 text2，返回这两个字符串的最⻓公共⼦序列的⻓度。
+ ⼀个字符串的 ⼦序列 是指这样⼀个新的字符串：它是由原字符串在不改变字符的相对顺序的情况下删除
+ 某些字符（也可以不删除任何字符）后组成的新字符串。
+ 例如，"ace" 是 "abcde" 的⼦序列，但 "aec" 不是 "abcde" 的⼦序列。两个字符串的「公共⼦序列」是
+ 这两个字符串所共同拥有的⼦序列。
+ 若这两个字符串没有公共⼦序列，则返回 0。
+ 示例 1:
+ 输⼊：text1 = "abcde", text2 = "ace"
+ 输出：3
+ 解释：最⻓公共⼦序列是 "ace"，它的⻓度为 3。
+ */
+int longestCommonSubsequence(string text1, string text2) {
+    // dp[i][j] 表示text1的[0,i-1]范围 和 text2的[0,j-1] 的公共子序列长度为dp[i][j].  为啥不是dp[i][j]表示i,j范围?  为了方便书写, 方便初始换dp
+    vector<vector<int>> dp(text1.size()+1,vector<int>(text2.size()+1,0));
+    int res = 0;
+    for (int i = 1; i <= text1.size(); i++) {
+        for (int j = 1; j <= text2.size(); j++) {
+            if (text1[i-1] == text2[j-1]) {
+                dp[i][j] = dp[i-1][j-1] + 1;
+            } else {
+                dp[i][j] = max(dp[i-1][j],dp[i][j-1]);
+            }
+            if (dp[i][j] > res) {
+                res = dp[i][j];
+            }
+        }
+    }
+    return res;
+}
+```
+
+<a id="53. 最⼤⼦序和"></a>
+### 53. 最⼤⼦序和
+
+```cpp
+/*
+ 给定⼀个整数数组 nums ，找到⼀个具有最⼤和的连续⼦数组（⼦数组最少包含⼀个元素），返回其最
+ ⼤和。
+ 示例:
+ 输⼊: [-2,1,-3,4,-1,2,1,-5,4]
+ 输出: 6
+ 解释: 连续⼦数组 [4,-1,2,1] 的和最⼤，为 6
+ */
+int maxSubArray(vector<int>& nums) {
+    // dp[i] 表示下标[0,i]的最大和
+    vector<int> dp(nums.size(),0);
+    dp[0] = nums[0];
+    int res = dp[0];
+    for (int i = 1; i < nums.size(); i++) {
+        dp[i] = max(dp[i-1]+nums[i],nums[i]);
+        if (dp[i] > res) {
+            res = dp[i];
+        }
+    }
+    return res;
+}
+// 贪心写法
+int maxSubArray2(vector<int>& nums) {
+    int sum = 0, res = INT_MIN;
+    for (int i=0; i<nums.size(); i++) {
+        if (sum < 0) {
+            sum = nums[i];
+        } else {
+            sum += nums[i];
+        }
+        if (sum > res) {
+            res = sum;
+        }
+    }
+    return res;
+}
+```
+
+
+<a id="1035.不相交的线"></a>
+### 1035.不相交的线
+
+```cpp
+/*
+ 我们在两条独⽴的⽔平线上按给定的顺序写下 A 和 B 中的整数。
+ 现在，我们可以绘制⼀些连接两个数字 A[i] 和 B[j] 的直线，只要 A[i] == B[j]，且我们绘制的直线不与任
+ 何其他连线（⾮⽔平线）相交。以这种⽅法绘制线条，并返回我们可以绘制的最⼤连线数。
+ 
+ 就是求两个字符串的公共子序列
+ */
+int maxUncrossedLines(vector<int>& A, vector<int>& B) {
+    vector<vector<int>> dp(A.size()+1,vector<int>(B.size()+1,0));
+    for (int i = 1; i <= A.size(); i++) {
+        for (int j = 1; j <= B.size(); j++) {
+            if (A[i-1] == B[j-1]) {
+                dp[i][j] = dp[i-1][j-1] + 1;
+            } else {
+                dp[i][j] = max(dp[i-1][j],dp[i][j-1]);
+            }
+        }
+    }
+    return dp[A.size()][B.size()];
 }
 ```

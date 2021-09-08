@@ -29,6 +29,10 @@
 	* <a href="#392.判断⼦序列">392.判断⼦序列</a>
 	* <a href="#115.不同的⼦序列">115.不同的⼦序列</a>
 	* <a href="#72. 编辑距离">72. 编辑距离</a>
+* <a href="#回文子串问题">回文子串问题</a>
+ * <a href="#647. 回文子串">647. 回文子串</a>
+ * <a href="#5. 最长回文子串">5. 最长回文子串</a>
+ * <a href="#516. 最长回文子序列">516. 最长回文子序列</a>
 
 <a id="动规五部曲"></a>
 动规五部曲: 
@@ -999,5 +1003,152 @@ int minDistance(string word1, string word2) {
         }
     }
     return dp[word1.size()][word2.size()];
+}
+```
+
+<a id="回文子串问题"></a>
+
+<a id="647. 回文子串"></a>
+### 647. 回文子串
+
+```
+/*
+ 给你一个字符串 s ，请你统计并返回这个字符串中 回文子串 的数目。
+ 回文字符串 是正着读和倒过来读一样的字符串。
+ 子字符串 是字符串中的由连续字符组成的一个序列。
+ 具有不同开始位置或结束位置的子串，即使是由相同的字符组成，也会被视作不同的子串。
+ 示例 1：
+ 输入：s = "abc"
+ 输出：3
+ 解释：三个回文子串: "a", "b", "c"
+ 示例 2：
+ 输入：s = "aaa"
+ 输出：6
+ 解释：6个回文子串: "a", "a", "a", "aa", "aa", "aaa"
+ */
+```
+
+
+```cpp
+/*
+ dp[i][j] 表示[i,j]之前是否是回文串
+ 递推公式:
+    如果s[i]!=s[j]那一定不是回文串
+    当s[i]=s[j]
+        如果j-1<=1, 那一定是
+        否则看 dp[i+1][j-1]
+ 变脸顺序:
+    根据dp[i][j]可能用dp[i+1][j-1]推导出, 在dp[i+1][j-1]的左下角
+    所以遍历顺序为 从下到上, 从左到右
+ */
+int countSubstrings(string s) {
+    vector<vector<bool>> dp(s.size(),vector<bool>(s.size(),false));
+    int res = 0;
+    for (int i = s.size()-1; i >= 0 ;i--) {
+        // 以为是[i,j]区间, j不可能比i小
+        for (int j = i; j < s.size(); j++) {
+            if (s[i] == s[j]) {
+                if (j - i <= 1) {
+                    res ++ ;
+                    dp[i][j] = true;
+                } else if (dp[i+1][j-1]) {
+                    res ++;
+                    dp[i][j] = true;
+                }
+            }
+        }
+    }
+    return res;
+}
+```
+
+<a id="5. 最长回文子串"></a>
+### 5. 最长回文子串
+
+给定一个字符串 s，找到 s 中最长的回文子串。你可以假设 s 的最大长度为 1000。
+
+```cpp
+/*
+ dp[i][j] 表示[i,j]之前是否是回文串
+ 递推公式:
+    如果s[i]!=s[j]那一定不是回文串
+    当s[i]=s[j]
+        如果j-1<=1, 那一定是
+        否则看 dp[i+1][j-1]
+ 变脸顺序:
+    根据dp[i][j]可能用dp[i+1][j-1]推导出, 在dp[i+1][j-1]的左下角
+    所以遍历顺序为 从下到上, 从左到右
+ */
+string longestPalindrome(string s) {
+    // dp[i][j] 表示 [i,j]是否会回文子串连续的
+    vector<vector<int>> dp(s.size(),vector<int>(s.size(),0));
+    int len = 0,left = 0,right = 0;
+    for (int i = s.size()-1; i >= 0; i--) {
+        for (int j = i; j < s.size(); j++) {
+            if (s[i]==s[j]) {
+                if (j - i <= 1) {
+                    dp[i][j] = true;
+                }else if (dp[i+1][j-1]) {
+                    dp[i][j] = true;
+                }
+            }
+            if (dp[i][j] && j-i+1 > len) {
+                len = j-i+1;
+                left = i;
+                right = j;
+            }
+        }
+    }
+    if (len > 0) {
+        return s.substr(left,right-left+1);
+    }else {
+        return NULL;
+    }
+}
+```
+
+
+
+<a id="516. 最长回文子序列"></a>
+### 516. 最长回文子序列
+
+```
+/*
+ 给你一个字符串 s ，找出其中最长的回文子序列，并返回该序列的长度。
+ 子序列定义为：不改变剩余字符顺序的情况下，删除某些字符或者不删除任何字符形成的一个序列。
+ 示例 1：
+ 输入：s = "bbbab"
+ 输出：4
+ 解释：一个可能的最长回文子序列为 "bbbb" 。
+ */
+```
+
+```cpp
+/*
+ 这里是回文子序列,是可以不连续的
+ dp[i][j] 表示 [i,j]的最大连续子序列长度
+ 递推公式:
+ 当s[i]=s[j] dp[i][j] = dp[i+1][j-1] + 2;
+ 不等时 为 max(dp[i+1][j], dp[i][j-1])
+ 初始化:
+ 因为是[i,j] 但是考虑由dp[i][j-1]中的j-1,如果不存在i=j的情况, 要初始化
+ 遍历顺序:
+ 由dp[i+1][j-1] => 推断 从下到上, 从左到右
+ */
+int longestPalindromeSubseq(string s) {
+    vector<vector<int>> dp(s.size(),vector<int>(s.size(),0));
+    for (int i = 0; i < s.size(); i++) {
+        dp[i][i] = 1;
+    }
+    for (int i = s.size()-1; i>=0; i--) {
+        for (int j = i+1; j < s.size(); j++) {
+            if (s[i] == s[j]) {
+                dp[i][j] = dp[i+1][j-1] + 2;
+            } else {
+                dp[i][j] = max(dp[i+1][j],dp[i][j-1]);
+            }
+        }
+    }
+    return dp[0][s.size()-1];
 }
 ```

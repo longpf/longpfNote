@@ -26,6 +26,9 @@
 	* <a href="#1143.最⻓公共⼦序列">1143.最⻓公共⼦序列</a>
 	* <a href="#53. 最⼤⼦序和">53. 最⼤⼦序和</a>
 	* <a href="#1035.不相交的线">1035.不相交的线</a>
+	* <a href="#392.判断⼦序列">392.判断⼦序列</a>
+	* <a href="#115.不同的⼦序列">115.不同的⼦序列</a>
+	* <a href="#72. 编辑距离">72. 编辑距离</a>
 
 <a id="动规五部曲"></a>
 动规五部曲: 
@@ -860,5 +863,141 @@ int maxUncrossedLines(vector<int>& A, vector<int>& B) {
         }
     }
     return dp[A.size()][B.size()];
+}
+```
+
+<a id="392.判断⼦序列"></a>
+### 392.判断⼦序列
+
+```
+给定字符串 s 和 t ，判断 s 是否为 t 的⼦序列。
+字符串的⼀个⼦序列是原始字符串删除⼀些（也可以不删除）字符⽽不改变剩余字符相对位置形成的新
+字符串。（例如，"ace"是"abcde"的⼀个⼦序列，⽽"aec"不是）。
+示例 1：
+输⼊：s = "abc", t = "ahbgdc"
+输出：true
+```
+
+```cpp
+bool isSubsequence(string s, string t){
+    // dp[i][j] 表示,以下标i-1的为结尾的s,和以j-1为结尾的t,相同子序列长度为dp[i][j]
+    vector<vector<int>> dp(s.size()+1,vector<int>(t.size()+1,0));
+    for (int i = 1; i <= s.size(); i++) {
+        for (int j = 1; j <= t.size(); j++) {
+            if (s[i-1] == t[j-1]) {
+                dp[i][j] = dp[i-1][j-1] + 1;
+            } else {
+                // 相当于删除t[j-1]
+                dp[i][j] = dp[i][j-1];
+            }
+        }
+    }
+    if (dp[s.size()][t.size()] == t.size()) {
+        return true;
+    }
+    return false;
+}
+```
+
+<a id="115.不同的⼦序列"></a>
+### 115.不同的⼦序列
+
+```
+/*
+ 给定⼀个字符串 s 和⼀个字符串 t ，计算在 s 的⼦序列中 t 出现的个数。
+ 字符串的⼀个 ⼦序列 是指，通过删除⼀些（也可以不删除）字符且不⼲扰剩余字符相对位置所组成的新
+ 字符串。（例如，"ACE" 是 "ABCDE" 的⼀个⼦序列，⽽ "AEC" 不是）
+ 题⽬数据保证答案符合 32 位带符号整数范围。
+ 
+ 输入：s = "rabbbit", t = "rabbit"
+ 输出：3
+ 输入：s = "babgbag", t = "bag"
+ 输出：5
+ */
+```
+
+```cpp
+/*
+ 1. dp[i][j] 表示 以s的i-1结尾的子序列中出现以j-1为结尾的t的个数
+ 2.
+    s[i-1]==t[j-1]时 分为两部分
+    1.用s[i-1]匹配:dp[i-1][j-1]
+    2.不用s[i-1]匹配: => s[i-2]和t[j-1] => dp[i-1][j]
+ 
+    s[i-1]!=t[j-1]时只能用s的i-2和之前的去匹配
+    dp[i][j] = dp[i-1][j]
+ */
+int numDistinct(string s, string t) {
+    vector<vector<uint64_t>> dp(s.size()+1,vector<uint64_t>(t.size()+1,0));
+    for (int i=0;i<=s.size();i++) dp[i][0] = 1;
+    for (int j=1;j<=t.size();j++) dp[0][j] = 0;
+    for (int i=1; i <= s.size(); i++) {
+        for (int j = 1; j <= t.size(); j++) {
+            if (s[i-1] == t[j-1]) {
+                dp[i][j] = dp[i-1][j-1] + dp[i-1][j];
+            } else {
+                dp[i][j] = dp[i-1][j];
+            }
+        }
+    }
+    return dp[s.size()][t.size()];
+}
+```
+
+<a id="72. 编辑距离"></a>
+### 72. 编辑距离
+
+```
+/*
+ 困难
+ word1 和 word2，请你计算出将 word1 转换成 word2 所使用的最少操作数 。
+ 你可以对一个单词进行如下三种操作：
+
+ 插入一个字符
+ 删除一个字符
+ 替换一个字符
+  
+
+ 示例 1：
+
+ 输入：word1 = "horse", word2 = "ros"
+ 输出：3
+ 解释：
+ horse -> rorse (将 'h' 替换为 'r')
+ rorse -> rose (删除 'r')
+ rose -> ros (删除 'e')
+ */
+```
+
+```cpp
+/*
+ dp[i][j] 表示以word1的i-1为结尾和word2的j-1为结尾 操作次数
+ 如果 word1[i-1] = word2[j-1]时, dp[i][j] = dp[i-1][j-1]
+ 不等时
+    1. word1[i-1]增加一个字符(一次操作) dp[i-1][j] + 1
+    2. word2[j-1]增加一个字符(相当于word1删除一个) dp[i][j-1] + 1
+    3. 将word1[i-1]改成word2[j-1] => dp[i-1][j-1] + 1
+ 初始化: dp[i][0]表示word2为空字符串, dp[i][0] = i
+        dp[0][j]同理 = j
+ 遍历: 从前到后遍历
+ */
+int minDistance(string word1, string word2) {
+    vector<vector<int>> dp(word1.size()+1,vector<int>(word2.size()+1,0));
+    for (int i=0; i<=word1.size(); i++) {
+        dp[i][0] = i;
+    }
+    for (int j = 0; j <=word2.size(); j++) {
+        dp[0][j] = j;
+    }
+    for (int i = 1; i <= word1.size(); i++) {
+        for (int j = 1; j <= word2.size();j++) {
+            if (word1[i-1] == word2[j-1]) {
+                dp[i][j] = dp[i-1][j-1];
+            } else {
+                dp[i][j] = min(dp[i-1][j]+1,min(dp[i][j-1]+1,dp[i-1][j-1]+1));
+            }
+        }
+    }
+    return dp[word1.size()][word2.size()];
 }
 ```

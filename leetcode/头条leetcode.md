@@ -232,6 +232,8 @@ double findKth(vector<int> &arr1,vector<int> &arr2,int start1,int start2,int len
 
 给定一个字符串 s，找到 s 中最长的回文子串。你可以假设 s 的最大长度为 1000。
 
+[https://github.com/longpf/longpfNote/blob/master/其他算法/随想录-DP.md#回文子串问题](https://github.com/longpf/longpfNote/blob/master/其他算法/随想录-DP.md#回文子串问题)
+
 ```
 输入: "babad"
 输出: "bab"

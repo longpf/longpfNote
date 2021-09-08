@@ -171,6 +171,9 @@ exention -> exection (将 'n' 替换为 'c')
 exection -> execution (插入 'u')
 ``` 
 
+**看这里:**
+[https://github.com/longpf/longpfNote/blob/master/其他算法/随想录-DP.md#72.%20编辑距离](https://github.com/longpf/longpfNote/blob/master/其他算法/随想录-DP.md#72.%20编辑距离)
+
 ```cpp
 /*
  // dp[i][j] 表示word1的前i个字符 和 word2的前j个的最小编辑次数

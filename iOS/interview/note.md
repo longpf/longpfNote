@@ -1693,11 +1693,45 @@ CADisplayLink 基于source1
 
 ### 启动优化
 
+* [https://mp.weixin.qq.com/s?__biz=MzI1MzYzMjE0MQ==&mid=2247486932&idx=1&sn=eb4d294e00375d506b93a00b535c6b05&chksm=e9d0c636dea74f20ec800af333d1ee94969b74a92f3f9a5a66a479380d1d9a4dbb8ffd4574ca&scene=21#wechat_redirect](https://mp.weixin.qq.com/s?__biz=MzI1MzYzMjE0MQ==&mid=2247486932&idx=1&sn=eb4d294e00375d506b93a00b535c6b05&chksm=e9d0c636dea74f20ec800af333d1ee94969b74a92f3f9a5a66a479380d1d9a4dbb8ffd4574ca&scene=21#wechat_redirect)
+* [https://www.infoq.cn/article/tx0tcv9h6lkvknokqn7i](https://www.infoq.cn/article/tx0tcv9h6lkvknokqn7i)
+* [https://tech.meituan.com/2018/12/06/waimai-ios-optimizing-startup.html](https://tech.meituan.com/2018/12/06/waimai-ios-optimizing-startup.html)
+
 #### APP的启动
 
+* Mach-O
+
+	mach-o是ios的可执行文件格式, 典型的mach-o是主二进制和动态库.分为三部分
+
+	* Header: 最开始是Magic Number表示是一个mach-o文件,还有一些flags会影响解析
+	* Load Commands: mach-o布局信息,segment command和Data中的Segment/Section是一一对应的, 除此之外还有依赖的动态库等启动app需要的信息
+	* Data: 包含了实际的代码和数据,被分割成很多segment,segment又被分割成很多section分别存放不同的类型数据. 标准的3个segment是TEXT,DATA,LINKEDIT
+		* TEXT,代码段,只读可执行,存储函数的二进制代码,常量字符串,OC的类/方法名信息
+		* DATA,数据段,读写,存储OC的的字符串cfstring,已经运行时的元数据:class/protocol/method,还有全局变量,静态变量
+		* LINKEDIT,q启动app需要的信息,必须bind,rebase地址,代码签名,符号表
+	
+
+	![](pic_112.png)
+
+
+* dyld
+
+	* dyld主要有两个版本dyld2和dyld3
+	* dyld2一直到ios12,一个比较大的优化就是dyld share cache,把系统库(UIKit等)合成一个大的文件,提高加载性能的缓存文件
+	* dyld3从ios13开始,增加启动闭包,包含了启动需要的缓存信息,提高启动速度
+	* dyld3如果优化启动速度? 启动闭包里面都有什么?
+		* dependends 依赖动态库列表,将动态库的依赖信息初始化顺序保存
+		* fixup：bind & rebase的地址
+			* rebase: 修复内部指针mach-o加载到虚拟内存后有一个偏移地址slide,需要把内部的指针加上这个偏移
+			* bind: 修复外部指针,像printf这种外部函数要等运行才知道地址,bind就是将指针指向这个地址
+			* 比如oc字符串`NSString *str = @"1234";`TEXT段存储cstring"1234",DATA段存储cfstring,oc字符串的元数据.rebase就是把指针`0x10`加上slide变成`0x1010`.运行时类对象的地址已经知道了,bind就是把isa指向实际内存地址
+		* 闭包中包含oc元数据如类方法等信息
+		* 初始化调用数据
+		* uuid等
+
  * APP的启动可以分为2种
-	* 冷启动（Cold Launch）：从零开始启动APP
-	* 热启动（Warm Launch）：APP已经在内存中，在后台存活着，再次点击图标启动APP
+	* 冷启动（Cold Launch）：从零(重启/升级系统/升级app)开始启动APP
+	* 热启动（Warm Launch）：存在缓存闭包情况下的启动
 
 * APP启动时间的优化，主要是针对冷启动进行优化
 
@@ -1705,16 +1739,92 @@ CADisplayLink 基于source1
 DYLD_PRINT_STATISTICS设置为1
 
 	如果需要更详细的信息，那就将DYLD_PRINT_STATISTICS_DETAILS设置为1
-	
-	
-* APP的冷启动可以概括为3大阶段
-	* dyld
-	* runtime
-	* main
 
+* 虚拟内存
+	* 物理内存,实际占用的内存
+	* 虚拟内存,在物理内存之上建立的一层逻辑内存,保证内存安全的同事为应用提供了连续的地址空间
+	* 物理内存和虚拟内存以页为单位映射,但映射广西不是一一对应,一页污泥内存可能对应多页虚拟内存,一页虚拟内存也可能不占用物理内存
+	* iphone6s之前Page是4k,之后是16k
+
+* mmap
+
+	* memory map,一种内存映射技术,把文件映射到虚拟内存的地址空间,这样就可以像直接操作内存来读写文件
+	* 当读取的虚拟内存对应的物理内存中不存在的时候,会触发File Backed Page In把对应的内容读入物理内存
+	* 启动的时候,mach-o通过mmap映射到虚拟内存里面,如下图.zero fill是因为全局变量的初始化一般都是0, 这些0没必要存在mach-o中,操作系统会识别出这些页,在Page In之后对其置零
+	
+	![](pic_113.png)
+	
+* Page In
+	
+	启动的路径上会触发很多次Page In,启动会读写二进制中的很多内容,Page In占用启动消耗中很大一部分,如下图
+
+	![](pic_114.png)
+	
+	* MMU找到空闲的物理内存页面
+	* 触发磁盘IO,把数据读入物理内存
+	* 如果是TEXT段的页,需要进行解密
+	* 对解密后的页,进行签名验证
+
+	解密是大头,IO其次. iTunes Connect会对上传的mach-o的TEXT段
+	惊醒加密,防止ipa下载了可以直接看到代码,逆向中的脱壳就是对TEXT的加密.iOS13优化了这个过程,Page In的时候不需要解密
+
+* 二进制重排
+
+	Page In优化.启动具有局部性特征. 少部分函数在启动的使用用到,这些函数在二进制中的分布是零散的.Page In读入的数据利用率不高.如果我们可以把启动用到的函数排到连续的区间,那么就可以减少Page In的次数,从而优化启动时间.
+	
+	下面method1和method3是启动的时候用到的, 需要2次Page In,如果把method1和method3排列到一起,那么只需要1次Page In,从而提升启动速度
+	
+	![](pic_115.png)
+	
+	连接器ld有个参数`-order_file`支持按照符号方式排列二进制
+
+* ipa 构建流程
+	
+	![](pic_116.png)
+	
+	* 编译: 源文件(.m/.c/.swift)单独编译,输出对应的目标文件.o.
+		* 编译分为前端和后端,二者以IR中间代码作为媒介,这样前后端可以独立变化
+		* c语言家族前端是clang,swift前端是swiftc,二者后端都是llvm
+		* 前端负责预处理,词法语法分析,生成IR
+		* 后端基于IR做优化,生成机器码
+
+	* 连接: 目标文件,动态库,静态库一起连接出最后的Mach-O.
+		* 动态库.tbd,只提供包含符号的tbd文件
+		
+	* 裁剪: 编译完mach-o之后会进行裁剪,比如调试信息
+	* 资源文件如storyboard,asset也会编译,编译后加载速度会更快
+	* mach-o和资源文件一起打包处最后的app
+	* 对app签名,防篡改,保证文件内容不多不少
+	
+
+* APP的冷启动main之前
+	* exe()系统分配进程
+	* mmap加载可执行文件
+	* 读取可执行文件中load command中dyld地址加载dyld
+	* **dyld加载其他动态库**:Dyld从主执行文件的header获取到需要加载的所依赖动态库列表，然后它需要找到每个 dylib，而应用所依赖的 dylib 文件可能会再依赖其他 dylib，所以所需要加载的是动态库列表一个递归依赖的集合
+	* **Rebase**: Rebase在Image内部调整指针的指向。在过去，会把动态库加载到指定地址，所有指针和数据对于代码都是对的，而现在地址空间布局是随机化，所以需要在原来的地址根据随机的偏移量做一下修正
+	* **Bind**: Bind是把指针正确地指向Image外部的内容。这些指向外部的指针被符号(symbol)名称绑定，dyld需要去符号表里查找，找到symbol对应的实现
+	* Objc setup:
+		* 注册Objc类 (class registration)
+		* 把category的定义插入方法列表
+		* 保证每一个selector唯一
+	* Initializers:
+		*  Objc的+load()函数
+		*  C++的构造函数属性函数
+		*  非基本类型的C++静态全局变量的创建(通常是类或结构体)
+	* main: dyld最后会调用main
+
+	![](pic_111.png)
+	
 	![](pic_104.png)
 
+#### 启动统计
 
+![](pic_118.png)
+
+* 进程开始时间可以根据进程identifier从`sysctl`系统调用获得
+* 第一个+load,命名一个AAA的pod,实现一个AAA类的是+load,load的调用顺序跟连接顺序有关, xcode运行日志里面有记录
+* 第一帧渲染完事,通过监听runloop的before waiting
 
 #### APP的启动 - dyld
 
@@ -1754,12 +1864,16 @@ DYLD_PRINT_STATISTICS设置为1
 		* Swift尽量使用struct
 
 	* runtime
-		* 用+initialize方法和dispatch_once取代所有的__attribute__((constructor))、C++静态构造器、ObjC的+load
+		* 用+initialize方法和dispatch_once取代所有的__attribute__((constructor))、C++静态构造器、ObjC的+load,load可能会触发page in
 
 	* main
 		* 在不影响用户体验的前提下，尽可能将一些操作延迟，不要全部都放在finishLaunching方法中
 		* 按需加载
-
+* 优化tips
+	* +load迁移,利用clang attribute的 `attribute((section)())`.
+		* section()函数提供了二进制段的读写能力,可以将一些编译器就可以确定的常量写入到数据段.在编译期，编译器会将标记了 `attribute((section()))` 的数据写到指定的数据段中，例如写一个{key(key代表不同的启动阶段), *pointer}对到数据段。到运行时，在合适的时间节点，在根据key读取出函数指针
+		* 可以通过`_dyld_register_func_for_add_image`去读取数据段的内容
+		* 这样可以减少load的page in
 
 ### 安装包优化
 

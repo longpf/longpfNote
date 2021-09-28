@@ -19,6 +19,7 @@
 * <a href="#多线程0">多线程问题</a> , <a href="#多线程1">多线程知识点</a>
 * <a href="#内存管理0">内存管理问题</a> , <a href="#内存管理1">内存管理知识点</a>
 * <a href="#性能优化0">性能优化问题</a> , <a href="#性能优化1">性能优化知识点</a>
+	* <a href="#启动优化">app启动&优化</a>
 * <a href="#设计模式与架构0">设计模式与架构</a> , <a href="#设计模式与架构1">设计模式与架构</a>
 
 
@@ -1690,6 +1691,7 @@ CADisplayLink 基于source1
 用户移动、摇晃、倾斜设备时，会产生动作(motion)事件，这些事件由加速度计、陀螺仪、磁力计等硬件检测。在不需要检测的场合，应该及时关闭这些硬件
 
 
+<a id="启动优化"></a>
 
 ### 启动优化
 
@@ -1874,6 +1876,18 @@ DYLD_PRINT_STATISTICS设置为1
 		* section()函数提供了二进制段的读写能力,可以将一些编译器就可以确定的常量写入到数据段.在编译期，编译器会将标记了 `attribute((section()))` 的数据写到指定的数据段中，例如写一个{key(key代表不同的启动阶段), *pointer}对到数据段。到运行时，在合适的时间节点，在根据key读取出函数指针
 		* 可以通过`_dyld_register_func_for_add_image`去读取数据段的内容
 		* 这样可以减少load的page in
+		
+	* 下线无用代码,用AppCode扫描.或者扫描mach-o
+		* `_objc_selrefs` 和 `_objc_classrefs` 存储了引用到的 sel 和 class
+		* `__objc_classlist` 存储了所有的 sel 和 class然后做差集
+
+	* SDK启动延迟,比如分享,登录
+	* 高频plist或者UserDefault做内存缓存
+	* 启动用到的图片尽量放在asset中不要放bundle,asset加载快
+	* 首帧优化
+		* 动图,可以先展示静态图, 首帧出来再播动态
+		* autolayout看看能否改frame
+		* 用time profiler检查启动
 
 ### 安装包优化
 

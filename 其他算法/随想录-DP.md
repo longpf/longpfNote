@@ -896,7 +896,7 @@ bool isSubsequence(string s, string t){
             }
         }
     }
-    if (dp[s.size()][t.size()] == t.size()) {
+    if (dp[s.size()][t.size()] == s.size()) {
         return true;
     }
     return false;

@@ -41,6 +41,7 @@
 * <a href="#23. 合并K个升序链表">23. 合并K个升序链表</a>
 * <a href="#440. 字典序的第K小数字">440. 字典序的第K小数字</a>
 * <a href="#字母组合">字母组合</a>
+* <a href="#6. Z 字形变换">6. Z 字形变换</a>
 
 
 <a id="1. 两数之和"></a>
@@ -221,7 +222,7 @@ double findKth(vector<int> &arr1,vector<int> &arr2,int start1,int start2,int len
         return findKth(arr1,arr2,start1,start2+p2,len1,len2-p2,k-p2);
     }
     else {
-        // 相等说明找到第k个元素
+        // 相等说明找到第k个元素 p1+p2=k-1
         return arr1[start1+p1-1];
     }
 }
@@ -1835,5 +1836,54 @@ void findAll(string numStr) {
         dp[i] = dp[i-1]+(stoi(s)<27?1:0);
     }
     cout << "findAll = " << dp[len-1] << endl;
+}
+```
+
+
+<a id="6. Z 字形变换"></a>
+
+### 6. Z 字形变换
+
+将一个给定字符串 s 根据给定的行数 numRows ，以从上往下、从左到右进行 Z 字形排列。
+比如输入字符串为 "PAYPALISHIRING" 行数为 3 时，排列如下：
+
+```
+ P   A   H   N
+ A P L S I I G
+ Y   I   R
+```
+之后，你的输出需要从左往右逐行读取，产生出一个新的字符串，比如："PAHNAPLSIIGYIR"。
+
+```
+ 示例 2：
+ 输入：s = "PAYPALISHIRING", numRows = 4
+ 输出："PINALSIGYAHRPI"
+ 解释：
+ P     I    N
+ A   L S  I G
+ Y A   H R
+ P     I 
+```
+
+```cpp
+string convert(string s, int numRows) {
+    size_t size = s.size();
+    vector<string> arr(numRows,"");
+    // 模拟Z字排列过程
+    for (int i = 0; i < size; ) {
+        for (int j = 0;i<size&&j<numRows; j++) {
+            arr[j] += s[i];
+            i++;
+        }
+        for (int j = numRows-2; i<size&&j>0; j--) {
+            arr[j] += s[i];
+            i++;
+        }
+    }
+    string res = "";
+    for (int i = 0; i < arr.size(); i++) {
+        res += arr[i];
+    }
+    return res;
 }
 ```

@@ -303,7 +303,9 @@
 
 	LLVM + (Runtime 相互协作)(不确定准确)
 	
-	利用LLVM编译器自动生成retain,release,autorelease这种内存管理的代码.比如大括号结束时加上release. 
+	自动生成`__strong`修饰符,利用LLVM编译器自动生成retain,release,autorelease这种内存管理的代码.比如大括号结束时加上release. 
+	
+	带来了weak修饰符
 	
 	像弱引用则需要runtime支持,需要运行时,清除弱引用对象.(不确定)
   
@@ -1007,7 +1009,6 @@ CFRunLoopGetMain();
 
 #### Source0,Source1,Timers,Observers 执行逻辑
 
-* 补充: [https://blog.csdn.net/SL_ideas/article/details/76593854](https://blog.csdn.net/SL_ideas/article/details/76593854)
 
 ![](pic_57.png)
 
@@ -1022,6 +1023,28 @@ CFRunLoopGetMain();
 	或者
 	[[NSRunloop currentRunLoop] performBlock:...];
 	```
+	
+* 补充(触摸点击runloop做了什么): [https://blog.csdn.net/SL_ideas/article/details/76593854](https://blog.csdn.net/SL_ideas/article/details/76593854)
+
+* 事件,UIEvent
+
+	```
+	@property(nonatomic,readonly) UIEventType     type;//触摸,加速,远程遥控,按压等
+@property(nonatomic,readonly) UIEventSubtype  subtype;//子类型
+@property(nonatomic,readonly) NSTimeInterval  timestamp;// 事件时间戳
+	```
+
+* 事件的传递, 事件已经生成, 那谁来处理?
+	
+	* 首先,事件不是谁都可以处理的,所以系统需要找到能处理事件的对象
+	* 系统把事件加入到一个由UIApplication管理的事件队列中
+	* 先进先出,事件会按照UIApplication -> UIWindow -> SuperView -> SubView的顺序不断的检测
+	* 检测的就是靠两个方法histTest与pointInside
+	* 检测的顺序是什么?
+	* 首先判断窗口能不能处理事件,如果不能,意味着窗口不是最合适的view,而且也不会寻找更合适的view,直接返回nil,通知UIApplication没有合适的view
+	* 如果窗口能响应事件,并且落点在自己身上,通过pointInside来判断, 
+	* 遍历自己的子控件,寻找没有没有更合适的view,如果没有则窗口自己处理,如果有则重复上面过程
+
 	
 <a id="RunLoop休眠的实现原理"></a>
 	
@@ -1100,6 +1123,8 @@ App启动后，苹果在主线程 RunLoop 里注册了两个 Observer，其回�
 ### runloop与事件响应
 
 苹果注册了一个 Source1 (基于 mach port 的) 用来接收系统事件，其回调函数为 __IOHIDEventSystemClientQueueCallback()。
+
+__IOHIDEventSystemClientQueueCallback会触发source0, source0会触发 _UIApplicationHandleEventQueue
 
 当一个硬件事件(触摸/锁屏/摇晃等)发生后，首先由 IOKit.framework 生成一个 IOHIDEvent 事件并由 SpringBoard 接收。SpringBoard 只接收按键(锁屏/静音等)，触摸，加速，接近传感器等几种 Event，随后用 mach port 转发给需要的App进程。随后苹果注册的那个 Source1 就会触发回调，并调用 _UIApplicationHandleEventQueue() 进行应用内部的分发。
 

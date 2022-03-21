@@ -104,7 +104,7 @@ int minCostClimbingStairs2(vector<int>& cost) {
 <a id="62. 不同路径"></a>
 ### 62. 不同路径
 
-从`(0,0)`到`(m,n)`的网格,有多少路径
+从`(0,0)`到`(m,n)`的网格,有多少路径, 只能向下,或者向右
 
 ```cpp
 int uniquePaths(int m,int n){

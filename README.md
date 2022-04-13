@@ -13,3 +13,6 @@
 * [知识点](https://github.com/longpf/longpfNote/blob/master/iOS/知识点.md)
 * [其他算法](https://github.com/longpf/longpfNote/blob/master/其他算法/其他算法.md)
 * [随想录-DP](https://github.com/longpf/longpfNote/blob/master/其他算法/随想录-DP.md#)
+
+* [python web服务器](https://github.com/longpf/longpfNote/blob/master/服务端/pythonServer.md)
+* [数据库操作](https://github.com/longpf/longpfNote/blob/master/服务端/database.md)

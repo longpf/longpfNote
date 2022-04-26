@@ -10,7 +10,7 @@
 * [数据结构与算法之美-王争](https://github.com/longpf/longpfNote/blob/master/算法之美note/0数据结构与算法之美-王争.md)
 * [leetcode-头条](https://github.com/longpf/longpfNote/blob/master/leetcode/头条leetcode.md)
 * [leetcode-腾讯](https://github.com/longpf/longpfNote/blob/master/leetcode/腾讯leetcode.md)
-* [知识点](https://github.com/longpf/longpfNote/blob/master/iOS/知识点.md)
+* [知识点](https://github.com/longpf/longpfNote/blob/master/iOS/0知识点.md)
 * [其他算法](https://github.com/longpf/longpfNote/blob/master/其他算法/其他算法.md)
 * [随想录-DP](https://github.com/longpf/longpfNote/blob/master/其他算法/随想录-DP.md#)
 

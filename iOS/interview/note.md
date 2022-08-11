@@ -1881,6 +1881,75 @@ DYLD_PRINT_STATISTICS设置为1
 * 所有初始化工作结束后，dyld就会调用main函数
 * 接下来就是UIApplicationMain函数，AppDelegate的application:didFinishLaunchingWithOptions:方法
 
+#### 分阶段/优先级启动
+
+* 为了实现启动项维护方式可插拔,启动项之间,业务模块之间不耦合, 采用业务启动模块自注册的方式. 实现上是: 
+* 通过 `__attribute__((section("name")))`的方式将数据写到数据段, 如下所示,used是作用是不要优化掉这个信息, 及时没有使用到. 具体写法如下
+
+```objective-c
+#define DYAppDelegateServiceRegister(_class_, _priority_)                      \
+    __attribute__(                                                             \
+        (used)) static struct DYAppDelegateMetaInfo DYADModule##_class_        \
+        __attribute((used, section("__DATA,__DYADKitSvcs"))) = {               \
+            .className = #_class_, .priority = _priority_,                     \
+    };
+    
+/**
+ * 由数据段读取 服务列表
+ */
+static void dyld_callback(const struct mach_header *mhp, intptr_t vmaddr_slide)
+{
+    unsigned long size = 0;
+#ifndef __LP64__
+    uintptr_t *memory = (uintptr_t *)getsectiondata(
+        mhp, SEG_DATA, DYAppDelegateServiceSectName, &size);
+#else
+    const struct mach_header_64 *mhp64 = (const struct mach_header_64 *)mhp;
+    uintptr_t *memory = (uintptr_t *)getsectiondata(
+        mhp64, SEG_DATA, DYAppDelegateServiceSectName, &size);
+#endif
+
+    unsigned long count = size / sizeof(struct DYAppDelegateMetaInfo);
+    struct DYAppDelegateMetaInfo *items =
+        (struct DYAppDelegateMetaInfo *)memory;
+
+    for (int index = 0; index < count; index++) {
+        NSString *classStr =
+            [NSString stringWithUTF8String:items[index].className];
+        NSInteger priority = items[index].priority;
+        if (!classStr) {
+            continue;
+        }
+
+        if (classStr) {
+            DYAppDelegateServiceItem *item =
+                [[DYAppDelegateServiceItem alloc] init];
+            Class cls = NSClassFromString(classStr);
+
+            if (cls) {
+                item.service = [cls new];
+                item.priority = priority;
+
+                [[DYAppDelegateServiceManager sharedManager]
+                    registerService:item];
+            }
+        }
+    }
+}
+
+__attribute__((constructor)) void initProphet()
+{
+    _dyld_register_func_for_add_image(dyld_callback);
+}
+
+```
+
+* 使用`__attribute__((constructor))`读取代码的数据(main函数之前),加载服务实例到manager
+* 在appdelegate中将消息转发到manager,分发给各个服务
+* 将各个服务的任务加到`DYLaunchEventManager`中,分阶段执行.阶段包括 开始启动,同意协议,开始首页ui,launch结束,首页ui加载结束(tabbar didappear),app空闲时间
+* 最后的空闲时间会将任务放在runloop空闲时间,(打点,礼物,资源配置等)
+
+
 #### APP的启动优化
 
 * 按照不同的阶段
